@@ -95,7 +95,7 @@ dcutscene_events:
         - inventory close
 
         ##Right click for location input in animator modifier
-        after player right clicks block flagged:cutscene_modify using:hand:
+        after player right clicks block flagged:cutscene_modify using:main_hand:
         - ratelimit <player> 1t
         - choose <player.flag[cutscene_modify]>:
           #Sound location
@@ -163,7 +163,7 @@ dcutscene_events:
           #Change cutscene GUI item
           - case cutscene_new_gui_item:
             - if <[msg]> == hand:
-              - define item <player.item_in_hand>
+              - define item <player.item_in_main_hand>
             - else:
               - define item <[msg]>
             - run dcutscene_settings_modify def:change_item|<[item]>
@@ -224,7 +224,7 @@ dcutscene_events:
           #Change model item
           - case change_model_item:
             - if <[msg]> == hand:
-              - run dcutscene_model_keyframe_edit def:denizen_model|change_model_item|<player.item_in_hand>
+              - run dcutscene_model_keyframe_edit def:denizen_model|change_model_item|<player.item_in_main_hand>
             - else:
               - run dcutscene_model_keyframe_edit def:denizen_model|change_model_item|<[msg]>
           #Change model location
