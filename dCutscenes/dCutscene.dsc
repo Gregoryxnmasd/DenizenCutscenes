@@ -23,9 +23,8 @@
 # such as a magical door opening with special effects.
 
 #=NOTICE (These are are highly recommended for use of the entire cutscene tool):
-# Denizen Models will allow you to display animated models in cutscenes
-# Forums: https://forum.denizenscript.com/resources/denizen-models.103/
-# Github: https://github.com/mcmonkeyprojects/DenizenModels
+# ModelEngine will allow you to display animated models in cutscenes.
+# Refer to your ModelEngine documentation for setup details.
 
 # Denizen Player Models will allow you to display animated player models
 # with multiple joints in cutscenes (Compatible with mccosmetics plugin)
