@@ -1261,7 +1261,7 @@ dcutscene_inventory_keyframe_model_list:
     - [] [] [] [] [] [] [] [] []
     - [dcutscene_back_page] [] [] [] [dcutscene_add_new_model] [] [] [] [dcutscene_exit]
 
-#Denizen Models modifier GUI
+#ModelEngine modifier GUI
 dcutscene_inventory_keyframe_modify_model:
     type: inventory
     inventory: CHEST
@@ -1291,7 +1291,7 @@ dcutscene_inventory_keyframe_modify_player_model:
     - [] [] [] [] [] [] [] [] []
     - [dcutscene_back_page] [] [] [dcutscene_remove_player_model_tick] [] [dcutscene_remove_player_model] [] [] [dcutscene_exit]
 
-#Ray Trace modification for Denizen Models.
+#Ray Trace modification for ModelEngine models.
 dcutscene_inventory_keyframe_ray_trace_model:
     type: inventory
     inventory: CHEST
