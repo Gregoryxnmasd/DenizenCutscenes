@@ -157,10 +157,10 @@ dcutscene_animation_begin:
               - choose <[type]>:
                 #=Model
                 - case model:
-                  - define script <script[modelengine_spawn_model]||null>
+                  - define script <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
                   - define model_name <[model_data.model]>
                   - if <[script]> == null:
-                    - debug error "Could not spawn model <[model_name]>. Is ModelEngine installed and configured?"
+                    - debug error "Could not spawn model <[model_name]>. Is ModelEngine 4 installed and configured?"
                     - foreach next
                   - define defs <list[<[model_name]>|<[spawn_loc]>|256|<[player]>]>
                 #=Player Model

@@ -266,7 +266,11 @@ dcutscene_location_tool_model_spawner:
         - flag <player> dcutscene_location_editor.root_ent:<[root]>
       - case model:
         - define model <[attribute]>
-        - run modelengine_spawn_model def:<[model]>|<[loc]>|256|<player> save:spawned
+        - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
+        - if <[modelengine_spawn]> == null:
+          - debug error "Could not find ModelEngine spawn script in dcutscene_location_tool_model_spawner"
+          - stop
+        - run <[modelengine_spawn]> def:<[model]>|<[loc]>|256|<player> save:spawned
         - define root <entry[spawned].created_queue.determination.first>
     - flag <player> dcutscene_location_editor.root_ent:<[root]>
 
