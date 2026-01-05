@@ -3,20 +3,20 @@
 #The visible camera when editing cutscenes
 dcutscene_camera_item:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
       custom_model_data: 10010
 
 dcutscene_open_gui_item:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <blue><bold>Open Cutscene Editor
     mechanisms:
       custom_model_data: 10015
 
 dcutscene_play_cutscene_item:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10008
     display name: <blue><bold>Play Cutscene
@@ -36,7 +36,7 @@ dcutscene_save_file_item:
 
 dcutscene_add_new_model:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10009
     display name: <green><bold>Add New Model +
@@ -47,7 +47,7 @@ dcutscene_add_new_model:
 #The exit button for the cutscene gui
 dcutscene_exit:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <red><bold>Exit
     mechanisms:
       custom_model_data: 10007
@@ -55,7 +55,7 @@ dcutscene_exit:
 #Next page button
 dcutscene_next:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <blue><bold>Next Page
     mechanisms:
         custom_model_data: 10003
@@ -63,7 +63,7 @@ dcutscene_next:
 #Previous page button
 dcutscene_previous:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <blue><bold>Previous Page
     mechanisms:
         custom_model_data: 10002
@@ -71,7 +71,7 @@ dcutscene_previous:
 #Scroll down the page
 dcutscene_scroll_down:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <blue><bold>Scroll Down
     mechanisms:
         custom_model_data: 10001
@@ -79,7 +79,7 @@ dcutscene_scroll_down:
 #Scroll up the page
 dcutscene_scroll_up:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <blue><bold>Scroll Up
     mechanisms:
         custom_model_data: 10004
@@ -87,35 +87,35 @@ dcutscene_scroll_up:
 #Keyframe Item
 dcutscene_keyframe:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
       custom_model_data: 10012
 
 #Keyframe that contains elements
 dcutscene_keyframe_contains:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
       custom_model_data: 10013
 
 #Keyframe that contains the scene stop point
 dcutscene_keyframe_stop_point:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
       custom_model_data: 10014
 
 #Sub keyframe
 dcutscene_sub_keyframe:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
       custom_model_data: 10011
 
 #Create new cutscene item
 dcutscene_new_scene_item:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <green><bold>New Scene +
     lore:
     - <gray>Create a new cutscene
@@ -125,7 +125,7 @@ dcutscene_new_scene_item:
 #back page button
 dcutscene_back_page:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <blue><bold>Back
     mechanisms:
         custom_model_data: 10000
@@ -177,7 +177,7 @@ dcutscene_duplicate_scene:
 
 dcutscene_change_item:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
       custom_model_data: 10015
     display name: <green><bold>Change GUI Item
@@ -216,7 +216,7 @@ dcutscene_bound_to_camera:
 
 dcutscene_delete_cutscene:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10005
     display name: <red><bold>Delete Cutscene
@@ -258,7 +258,7 @@ dcutscene_origin_point_refresh:
 #Modify keyframes button
 dcutscene_keyframes_list:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10012
     display name: <blue><bold>Modify Keyframes
@@ -266,7 +266,7 @@ dcutscene_keyframes_list:
 #Add animator button
 dcutscene_keyframe_tick_add:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10009
     display name: <green><bold>Add Animator +
@@ -274,7 +274,7 @@ dcutscene_keyframe_tick_add:
 #Default item for cutscenes
 dcutscene_scene_item_default:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10015
 
@@ -291,7 +291,7 @@ dcutscene_location_tool_item:
 
 dcutscene_location_tool_confirm_location:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10017
     display name: <green><bold>Confirm Location
@@ -392,7 +392,7 @@ dcutscene_loc_ray_trace_reverse_model:
 ##Camera
 dcutscene_add_cam:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
       custom_model_data: 10010
     display name: <dark_gray><bold>Modify Camera
@@ -409,7 +409,7 @@ dcutscene_camera_path_show:
 
 dcutscene_camera_keyframe:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
       custom_model_data: 10010
     display name: <dark_gray><bold>Camera
@@ -546,7 +546,7 @@ dcutscene_camera_timespot_play:
 
 dcutscene_camera_remove_modify:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
       custom_model_data: 10006
     display name: <red><bold>Remove camera from keyframe
@@ -779,7 +779,7 @@ dcutscene_model_teleport_loc:
 
 dcutscene_remove_model_tick:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <red><bold>Remove from tick
     mechanisms:
         custom_model_data: 10006
@@ -789,7 +789,7 @@ dcutscene_remove_model_tick:
 
 dcutscene_remove_model:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <dark_red><bold>Remove Model
     mechanisms:
         custom_model_data: 10005
@@ -1015,7 +1015,7 @@ dcutscene_player_model_timespot_play:
 
 dcutscene_remove_player_model:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10005
     display name: <dark_red><bold>Remove Player Model
@@ -1025,7 +1025,7 @@ dcutscene_remove_player_model:
 
 dcutscene_remove_player_model_tick:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove from tick
@@ -1124,7 +1124,7 @@ dcutscene_run_task_timespot_play:
 
 dcutscene_run_task_remove_modify:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Run Task
@@ -1266,7 +1266,7 @@ dcutscene_fake_block_timespot_play:
 
 dcutscene_fake_object_block_remove:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Fake Block
@@ -1429,7 +1429,7 @@ dcutscene_fake_schem_timespot_play:
 
 dcutscene_fake_object_schem_remove:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Fake Schematic
@@ -1505,7 +1505,7 @@ dcutscene_screeneffect_timespot_play:
 
 dcutscene_screeneffect_remove_modify:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Screeneffect
@@ -1679,7 +1679,7 @@ dcutscene_particle_timespot_play:
 
 dcutscene_particle_remove:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Particle
@@ -1763,7 +1763,7 @@ dcutscene_title_timespot_play:
 
 dcutscene_title_remove_modify:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Title
@@ -1852,7 +1852,7 @@ dcutscene_command_timespot_play:
 
 dcutscene_command_remove_modify:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Command
@@ -1918,7 +1918,7 @@ dcutscene_message_timespot_play:
 
 dcutscene_message_remove_modify:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Message
@@ -1989,7 +1989,7 @@ dcutscene_sound_custom_modify:
 
 dcutscene_sound_stop_modify:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Stop Sound
@@ -2033,7 +2033,7 @@ dcutscene_sound_timespot_play:
 
 dcutscene_sound_remove_modify:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Sound
@@ -2132,7 +2132,7 @@ dcutscene_time_timespot_play:
 
 dcutscene_time_remove_modify:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Time
@@ -2208,7 +2208,7 @@ dcutscene_weather_timespot_play:
 
 dcutscene_weather_remove_modify:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Weather
@@ -2220,7 +2220,7 @@ dcutscene_weather_remove_modify:
 ## Play Scene ##########
 dcutscene_play_scene:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <dark_blue><bold>Play a cutscene
     mechanisms:
         custom_model_data: 10015
@@ -2233,7 +2233,7 @@ dcutscene_play_scene:
 
 dcutscene_play_scene_change:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <dark_blue><bold>Change cutscene to play
     mechanisms:
         custom_model_data: 10015
@@ -2243,19 +2243,19 @@ dcutscene_play_scene_change:
 
 dcutscene_play_scene_keyframe:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
       custom_model_data: 10015
 
 dcutscene_play_scene_keyframe_contains:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
       custom_model_data: 10016
 
 dcutscene_play_scene_remove:
     type: item
-    material: paper
+    material: turtle_scute
     display name: <red><bold>Remove play cutscene animator
     mechanisms:
         custom_model_data: 10005
@@ -2280,7 +2280,7 @@ dcutscene_stop_scene_keyframe_item:
 
 dcutscene_stop_point_remove_modify:
     type: item
-    material: paper
+    material: turtle_scute
     mechanisms:
         custom_model_data: 10006
     display name: <red><bold>Remove Stop Point
