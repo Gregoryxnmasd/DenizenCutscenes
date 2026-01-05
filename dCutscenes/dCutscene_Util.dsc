@@ -401,7 +401,7 @@ dcutscene_command:
                       - case player_model:
                         - run pmodels_animate def:<[root]>|<[a_2]>
                       - case model:
-                        - run dmodels_animate def:<[root]>|<[a_2]>
+                        - run modelengine_animate def:<[root]>|<[a_2]>
               #Set animation for model in keyframe
               - else if <player.flag[cutscene_modify]> == set_model_animation:
                 - define type <player.flag[dcutscene_save_data.type]>
@@ -416,7 +416,7 @@ dcutscene_command:
                   - case model:
                     #Validate the animation
                     - define model <player.flag[dcutscene_save_data.model]>
-                    - if <server.flag[dmodels_data.animations_<[model]>.<[a_2]>]||null> == null && <[a_2]> != false && <[a_2]> != stop:
+                    - if <server.flag[modelengine_data.animations_<[model]>.<[a_2]>]||null> == null && <[a_2]> != false && <[a_2]> != stop:
                       - define text "Animation <green><[a_2]> <gray>does not seem to exist for model <green><[model]><gray>."
                       - narrate "<[msg_prefix]> <gray><[text]>"
                       - stop
@@ -460,7 +460,7 @@ dcutscene_data_list:
       - determine <server.flag[dcutscenes].keys||<empty>>
     - choose <[player].flag[cutscene_modify_tab]>:
       - case model:
-        - determine <server.flag[dmodels_data].keys.filter[starts_with[model_]].parse[after[model_]].if_null[<empty>]>
+        - determine <server.flag[modelengine_data].keys.filter[starts_with[model_]].parse[after[model_]].if_null[<empty>]>
       - case sound:
         - determine <server.sound_types>
       - case animate:
@@ -477,7 +477,7 @@ dcutscene_data_list:
               - determine <[anim_list].keys||<empty>>
             - case model:
               - define model <[player].flag[dcutscene_save_data.model]>
-              - define anim_list <server.flag[dmodels_data.animations_<[model]>]||<map>>
+              - define anim_list <server.flag[modelengine_data.animations_<[model]>]||<map>>
               - determine <[anim_list].keys||<empty>>
       - case material:
         - determine <server.material_types.filter[is_block].parse_tag[<material[<[parse_value]>].name>]>

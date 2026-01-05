@@ -639,7 +639,7 @@ dcutscene_model_remove:
         - case player_model:
             - run pmodels_remove_model def:<[root_ent]>
         - case model:
-            - run dmodels_delete def:<[root_ent]>
+            - run modelengine_delete def:<[root_ent]>
 
 dcutscene_model_keyframe_edit:
     type: task
@@ -655,18 +655,15 @@ dcutscene_model_keyframe_edit:
       - define uuid <player.flag[dcutscene_tick_modify.uuid]||>
       - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
       - choose <[option]>:
-        #========= Denizen Models Modifier =========
+        #========= ModelEngine Modifier =========
 
         - case denizen_model:
-          #-Check if creator has DModels
-          - if <script[dmodels_spawn_model]||null> == null:
-            - debug error "Could not find Denizen Models in dcutscene_model_keyframe_edit"
-            - define text "Could not find Denizen Models download it from one of these links."
-            - define text_2 "<gray>Forums: <green><&click[https://forum.denizenscript.com/resources/denizen-models.103/].type[OPEN_URL]>click here<&end_click><gray>."
-            - define text_3 "<gray>Github: <green><&click[https://github.com/mcmonkeyprojects/DenizenModels].type[OPEN_URL]>click here<&end_click><gray>."
+          #-Check if creator has ModelEngine
+          - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
+          - if <[modelengine_spawn]> == null:
+            - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
+            - define text "Could not find ModelEngine spawn script. Ensure ModelEngine 4 is installed and Denizen integration is enabled."
             - narrate "<[msg_prefix]> <gray><[text]>"
-            - narrate <[text_2]>
-            - narrate <[text_3]>
             - inventory close
           - else:
             - choose <[arg]>:
@@ -698,15 +695,15 @@ dcutscene_model_keyframe_edit:
                   - debug error "Something went wrong could not determine model ID in dcutscene_model_keyframe_edit for create_model_name"
                   - stop
                 #Model verification
-                - if <server.has_flag[dmodels_data]>:
-                  - if <server.flag[dmodels_data.model_<[arg_2]>]||null> != null:
+                - if <server.has_flag[modelengine_data]>:
+                  - if <server.flag[modelengine_data.model_<[arg_2]>]||null> != null:
                     #If there is a model present remove it
                     - if <player.has_flag[dcutscene_location_editor]>:
                       - define loc_data <player.flag[dcutscene_location_editor]>
                       - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
                     #Give location tool and spawn the model
                     - flag <player> cutscene_modify:new_model_location expire:10m
-                    - run dmodels_spawn_model def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
+                    - run <[modelengine_spawn]> def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
                     - define root <entry[spawned].created_queue.determination.first>
                     #Don't reset save_data with a - definemap
                     - flag <player> dcutscene_save_data.root:<[root]>
@@ -746,7 +743,7 @@ dcutscene_model_keyframe_edit:
                   - stop
                 - flag server dcutscenes.<[data.name]>:<[data]>
                 - flag <player> cutscene_data:<server.flag[dcutscenes.<[data.name]>]>
-                - define text "Denizen Model <green><[save_data.model]> <gray>has been created for tick <green><[tick]>t <gray>with an ID of <green><[save_data.id]> <gray>in scene <green><[data.name]><gray>."
+                - define text "ModelEngine model <green><[save_data.model]> <gray>has been created for tick <green><[tick]>t <gray>with an ID of <green><[save_data.id]> <gray>in scene <green><[data.name]><gray>."
                 - narrate "<[msg_prefix]> <gray><[text]>"
                 #Remove created player model
                 - if <player.has_flag[dcutscene_location_editor]>:
@@ -781,7 +778,11 @@ dcutscene_model_keyframe_edit:
                         - narrate "<[msg_prefix]> <gray><[text]>"
                         - flag <player> dcutscene_save_data.data:<[root_save]>
                         - define model <[root_data.model]>
-                        - run dmodels_spawn_model def:<[model]>|<player.location>|256|<player> save:spawned
+                        - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
+                        - if <[modelengine_spawn]> == null:
+                          - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
+                          - foreach next
+                        - run <[modelengine_spawn]> def:<[model]>|<player.location>|256|<player> save:spawned
                         - define root <entry[spawned].created_queue.determination.first>
                         - flag <player> dcutscene_save_data.root:<[root]>
                         - run dcutscene_location_tool_give_data def:<player.location>|<[root]>|<[root].location.yaw>|model|<[model]>
@@ -917,7 +918,11 @@ dcutscene_model_keyframe_edit:
                 - flag <player> cutscene_modify:set_new_model_location
                 - flag <player> dcutscene_save_data.data:<[root_save]>
                 - flag <player> dcutscnee_save_data.model:<[model]>
-                - run dmodels_spawn_model def:<[model]>|<player.location>|256|<player> save:spawned
+                - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
+                - if <[modelengine_spawn]> == null:
+                  - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
+                  - stop
+                - run <[modelengine_spawn]> def:<[model]>|<player.location>|256|<player> save:spawned
                 - define root <entry[spawned].created_queue.determination.first>
                 - flag <player> dcutscene_save_data.root:<[root]>
                 - run dcutscene_location_tool_give_data def:<player.location>|<[root]>|<[root].location.yaw>|model|<[model]>

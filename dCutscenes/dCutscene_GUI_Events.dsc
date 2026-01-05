@@ -22,7 +22,7 @@ dcutscene_events:
               - case player_model:
                 - run pmodels_remove_model def:<[root]>
               - case model:
-                - run dmodels_delete def:<[root]>
+                - run modelengine_delete def:<[root]>
               - default:
                 - remove <[root]>
           - flag <player> dcutscene_save_data:!
@@ -758,7 +758,7 @@ dcutscene_events:
           - case set_new_player_model_location:
             - run dcutscene_model_keyframe_edit def:player_model|location|set_location|<player.flag[dcutscene_location_editor.location]>
 
-        ## Denizen Models ####
+        ## ModelEngine Models ####
         #New model
         after player clicks dcutscene_add_model in dcutscene_inventory_keyframe_modify:
         - run dcutscene_model_keyframe_edit def:denizen_model|new

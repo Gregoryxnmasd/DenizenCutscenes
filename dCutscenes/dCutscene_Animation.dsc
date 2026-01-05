@@ -157,10 +157,10 @@ dcutscene_animation_begin:
               - choose <[type]>:
                 #=Model
                 - case model:
-                  - define script <script[dmodels_spawn_model]||null>
+                  - define script <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
                   - define model_name <[model_data.model]>
                   - if <[script]> == null:
-                    - debug error "Could not spawn model <[model_name]> is your DModels up to date?"
+                    - debug error "Could not spawn model <[model_name]>. Is ModelEngine 4 installed and configured?"
                     - foreach next
                   - define defs <list[<[model_name]>|<[spawn_loc]>|256|<[player]>]>
                 #=Player Model
@@ -192,6 +192,8 @@ dcutscene_animation_begin:
                   - foreach next
               - run <[script]> def:<[defs]> save:spawned
               - define root <entry[spawned].created_queue.determination.first>
+              - if <[type]> == model:
+                - flag <[root]> modelengine_model_id:<[model_name]>
               - chunkload <[root].location.chunk> duration:5t
               # Track spawned model
               - flag <[player]> dcutscene_spawned_models.<[model_id]>.root:<[root]>
@@ -646,7 +648,7 @@ dcutscene_animation_stop:
         - case player_model:
           - run pmodels_remove_model def:<[model.root]>
         - case model:
-          - run dmodels_delete def:<[model.root]>
+          - run modelengine_delete def:<[model.root]>
     - flag <[player]> dcutscene_played_scene:!
     - flag <[player]> dcutscene_spawned_models:!
     - flag <[player]> dcutscene_timespot:!
@@ -880,17 +882,17 @@ dcutscene_path_move:
               - define animation <[keyframe.animation]>
               #Model Animation
               - if <[animation]> != false && <[animation]> != stop:
-                - run dmodels_animate def:<[entity]>|<[animation]>
-                - define loop <server.flag[dmodels_data.animations_<[entity].flag[dmodel_model_id]>.<[animation]>.loop]||false>
+                - run modelengine_animate def:<[entity]>|<[animation]>
+                - define loop <server.flag[modelengine_data.animations_<[entity].flag[modelengine_model_id]>.<[animation]>.loop]||false>
                 - if <[loop]> == hold:
                   - flag <[entity]> dcutscene_model_animation_state:hold
                 - else:
                   - flag <[entity]> dcutscene_model_animation_state:!
               - else if <[animation]> == stop:
-                - run dmodels_end_animation def:<[entity]>
+                - run modelengine_end_animation def:<[entity]>
               #Reset position
               - if !<[entity].has_flag[dcutscene_model_animation_state]> || <[entity].flag[dcutscene_model_animation_state]> != hold:
-                - run dmodels_reset_model_position def:<[entity]>
+                - run modelengine_reset_model_position def:<[entity]>
               #After
               - foreach <[keyframes]> key:aft_tick_id as:aft_keyframe:
                 - if <[aft_tick_id].is_more_than[<[time_1]>]>:
@@ -1351,7 +1353,7 @@ dcutscene_catmullrom_get_t:
     # This is more complex for different alpha values, but alpha=1 compresses down to a '.vector_length' call conveniently
     - determine <[p1].sub[<[p0]>].vector_length.add[<[t]>]>
 
-# Procedure script by mcmonkey creator of DModels https://github.com/mcmonkeyprojects/DenizenModels
+# Procedure script originally by mcmonkey.
 dcutscene_catmullrom_proc:
     type: procedure
     debug: false
