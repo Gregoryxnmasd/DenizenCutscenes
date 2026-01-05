@@ -171,7 +171,7 @@ dcutscene_cam_keyframe_edit:
           - teleport <[camera]> <player.location>
           - define ray <player.eye_location.ray_trace[range=4;return=precise;default=air]>
           #data input
-          - definemap eye_loc location:<[ray]> boolean:false
+          - definemap eye_loc location:<[ray]> boolean:true
           - definemap cam_keyframe location:<player.location> rotate_mul:1.0 interpolation:linear move:true eye_loc:<[eye_loc]> tick:<[tick]> recording:false
           - look <[camera]> <[ray]> duration:2t
           - adjust <[camera]> armor_pose:[head=<player.location.pitch.to_radians>,0.0,0.0]
@@ -228,6 +228,7 @@ dcutscene_cam_keyframe_edit:
                 #data input
                 - define cam_keyframe <[camera_data.<[tick]>]>
                 - define cam_keyframe.eye_loc.location <[ray]>
+                - define cam_keyframe.eye_loc.boolean true
                 - define cam_keyframe.location <player.location>
                 #=-Debugger
                 - if <script[dcutscenes_config].data_key[config].get[cutscene_tool_debugger_mode].if_null[false].is_truthy>:
