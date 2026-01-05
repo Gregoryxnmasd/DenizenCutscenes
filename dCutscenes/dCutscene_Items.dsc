@@ -564,7 +564,7 @@ dcutscene_add_entity:
     - <empty>
     - <blue><italic><underline>Planned
 
-## Denizen Models ###
+## ModelEngine Models ###
 dcutscene_add_model:
     type: item
     material: dragon_head
@@ -572,7 +572,7 @@ dcutscene_add_model:
     lore:
     - <empty>
     - <gray>Show a model to the player and play animations with it.
-    - <blue>Requires DModels
+    - <blue>Requires ModelEngine
 
 dcutscene_model_keyframe_item:
     type: item
