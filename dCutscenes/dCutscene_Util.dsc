@@ -149,7 +149,7 @@ dcutscene_settings_modify:
         - inventory close
       #Change cutscene gui item
       - case change_item:
-        - if <item[<[arg]>]||null> == null && <item[<[arg]>].material.name> == air:
+        - if <item[<[arg]>]||null> == null || <item[<[arg]>].material.name> == air:
           - define text "<green><[arg]> <gray>is not a valid item."
           - narrate "<[msg_prefix]> <gray><[text]>"
           - stop

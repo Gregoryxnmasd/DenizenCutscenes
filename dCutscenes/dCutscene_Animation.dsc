@@ -93,6 +93,23 @@ dcutscene_animation_begin:
       - define stop_point <[keyframes.stop]||null>
       # Camera in keyframes (keys check for extra validation)
       - define camera <[keyframes.camera]||null>
+      # Normalize legacy camera look data that saved look targets with boolean false
+      - if <[camera].keys.first.exists>:
+        - define camera_data <[camera]>
+        - define camera_changed false
+        - foreach <[camera_data]> key:tick as:cam_keyframe:
+          - define eye_loc <[cam_keyframe.eye_loc.location]||null>
+          - define eye_loc_bool <[cam_keyframe.eye_loc.boolean].if_null[false]>
+          - define rec_bool <[cam_keyframe.recording.bool].if_null[false]>
+          - if !<[rec_bool]> && <[eye_loc_bool]> == false && <[eye_loc]> != null && <[eye_loc]> != false:
+            - if <[eye_loc].yaw> == 0 && <[eye_loc].pitch> == 0:
+              - define cam_keyframe.eye_loc.boolean true
+              - define camera_data.<[tick]>:<[cam_keyframe]>
+              - define camera_changed true
+        - if <[camera_changed]>:
+          - flag server dcutscenes.<[cutscene.name]>.keyframes.camera:<[camera_data]>
+          - define keyframes.camera <[camera_data]>
+          - define camera <[camera_data]>
       - if <[camera].keys.first.exists>:
         - define cam_count 0
         - ~run dcutscene_camera_spawn def.player:<[player]> def.timespot:<[timespot]> def.camera:<[camera]> def.bound:<[bound]> def.world:<[world]> def.origin:<[origin]> save:camera_spawn
