@@ -36,7 +36,7 @@ dcutscene_location_tool_events:
               - case player_model:
                 - run pmodels_end_animation def:<[root_ent]>
               - case model:
-                - run modelengine_end_animation def:<[root_ent]>
+                - run dcutscene_me_stop_animation def:<[root_ent]>
           - run dcutscene_location_ray_trace_update
       after player right clicks entity with:dcutscene_loc_ray_trace:
       - ratelimit <player> 2t
@@ -49,7 +49,7 @@ dcutscene_location_tool_events:
               - case player_model:
                 - run pmodels_end_animation def:<[root_ent]>
               - case model:
-                - run modelengine_end_animation def:<[root_ent]>
+                - run dcutscene_me_stop_animation def:<[root_ent]>
           - run dcutscene_location_ray_trace_update
       after player right clicks block with:dcutscene_loc_ray_trace_dist_add:
       - run dcutscene_location_edit_ray_trace_add_dist

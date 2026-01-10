@@ -401,7 +401,7 @@ dcutscene_command:
                       - case player_model:
                         - run pmodels_animate def:<[root]>|<[a_2]>
                       - case model:
-                        - run modelengine_animate def:<[root]>|<[a_2]>
+                        - run dcutscene_modelengine_animation_play def.entity:<[root]> def.animation:<[a_2]>
               #Set animation for model in keyframe
               - else if <player.flag[cutscene_modify]> == set_model_animation:
                 - define type <player.flag[dcutscene_save_data.type]>
@@ -415,11 +415,16 @@ dcutscene_command:
                     - run dcutscene_model_keyframe_edit def:player_model|animate|set_animation|<[a_2]>
                   - case model:
                     #Validate the animation
+                    - run dcutscene_models_registry_sync
                     - define model <player.flag[dcutscene_save_data.model]>
-                    - if <server.flag[modelengine_data.animations_<[model]>.<[a_2]>]||null> == null && <[a_2]> != false && <[a_2]> != stop:
+                    - define parsed <proc[dcutscene_modelengine_animation_parse].context[<[a_2]>]>
+                    - define anim_name <[parsed.name]>
+                    - if <[anim_name]> != false && <[anim_name]> != stop && <server.has_flag[dcutscene_modelengine_animations.<[model]>]> && <server.flag[dcutscene_modelengine_animations.<[model]>.<[anim_name]>]||null> == null:
                       - define text "Animation <green><[a_2]> <gray>does not seem to exist for model <green><[model]><gray>."
                       - narrate "<[msg_prefix]> <gray><[text]>"
                       - stop
+                    - if <[anim_name]> != false && <[anim_name]> != stop:
+                      - flag server dcutscene_modelengine_animations.<[model]>.<[anim_name]>:true
                     - run dcutscene_model_keyframe_edit def:denizen_model|set_animation|<[a_2]>
         #Shows list of models
         - case model:
@@ -450,7 +455,34 @@ dcutscene_command:
               - else if <player.flag[cutscene_modify]> == change_particle:
                 - run dcutscene_animator_keyframe_edit def:particle|change_particle|<[a_2]>
 
+# Sync ModelEngine registry data to dcutscene_models
+dcutscene_models_registry_sync:
+    type: task
+    debug: false
+    script:
+    - if !<server.has_flag[modelengine_data]>:
+      - stop
+    - define registry <map>
+    - foreach <server.flag[modelengine_data].keys.filter[starts_with[model_]]||<list>> as:model_key:
+      - define model_name <[model_key].after[model_]>
+      - define anim_list <server.flag[modelengine_data.animations_<[model_name]>]||<map>>
+      - define registry.models.<[model_name]>.animations <[anim_list]>
+    - flag server dcutscene_models.registry:<[registry]>
+
 # Tab completion for list of cutscenes or animator modifiers that utilize data from the server
+dcutscene_model_index:
+    type: procedure
+    debug: false
+    script:
+    - define model_index <server.flag[dcutscene_me_models]||null>
+    - if <[model_index]> == null:
+      - define config_models <script[dcutscenes_config].data_key[config].get[dcutscene_me_models].if_null[<list>]>
+      - if <[config_models].is_empty>:
+        - determine <list>
+      - flag server dcutscene_me_models:<[config_models]>
+      - determine <[config_models]>
+    - determine <[model_index]||<list>>
+
 dcutscene_data_list:
     type: procedure
     debug: false
@@ -460,7 +492,7 @@ dcutscene_data_list:
       - determine <server.flag[dcutscenes].keys||<empty>>
     - choose <[player].flag[cutscene_modify_tab]>:
       - case model:
-        - determine <server.flag[modelengine_data].keys.filter[starts_with[model_]].parse[after[model_]].if_null[<empty>]>
+        - determine <proc[dcutscene_model_index].if_null[<empty>]>
       - case sound:
         - determine <server.sound_types>
       - case animate:
@@ -476,8 +508,9 @@ dcutscene_data_list:
               - define anim_list <server.flag[pmodels_data.animations_player_model_template_norm]||<map>>
               - determine <[anim_list].keys||<empty>>
             - case model:
+              - run dcutscene_models_registry_sync
               - define model <[player].flag[dcutscene_save_data.model]>
-              - define anim_list <server.flag[modelengine_data.animations_<[model]>]||<map>>
+              - define anim_list <server.flag[dcutscene_modelengine_animations.<[model]>]||<map>>
               - determine <[anim_list].keys||<empty>>
       - case material:
         - determine <server.material_types.filter[is_block].parse_tag[<material[<[parse_value]>].name>]>

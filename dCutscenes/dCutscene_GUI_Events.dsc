@@ -22,7 +22,7 @@ dcutscene_events:
               - case player_model:
                 - run pmodels_remove_model def:<[root]>
               - case model:
-                - run modelengine_delete def:<[root]>
+                - run dcutscene_me_delete_model def:<[root]>
               - default:
                 - remove <[root]>
           - flag <player> dcutscene_save_data:!
