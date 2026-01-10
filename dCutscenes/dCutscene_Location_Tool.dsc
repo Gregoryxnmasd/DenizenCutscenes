@@ -248,7 +248,7 @@ dcutscene_location_edit_ray_trace:
             - case player_model:
               - run pmodels_reset_model_position def:<[root]>
             - case model:
-              - run dcutscene_me_reset_position def:<[root]>
+              - run dcutscene_me_reset_model_position def:<[root]>
         - else:
           - flag <player> dcutscene_location_editor.location:<[root].location>
 

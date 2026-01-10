@@ -520,6 +520,45 @@ dcutscene_data_list:
         - determine <empty>
     - determine <empty>
 
+## ModelEngine Layers #########
+# Spawns ModelEngine model and registers internal flags
+dcutscene_me_spawn_model:
+    type: task
+    debug: false
+    definitions: model|loc|tracking_range|fake_to
+    script:
+    - define model_name <[model]||<[model_name]>||null>
+    - define loc <[loc]||<[location]>||null>
+    - define tracking_range <[tracking_range]||256>
+    - define fake_to <[fake_to]||<player>>
+    - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
+    - if <[modelengine_spawn]> == null:
+      - debug error "Could not find ModelEngine spawn script in dcutscene_me_spawn_model"
+      - stop
+    - run <[modelengine_spawn]> def.model_name:<[model_name]> def.location:<[loc]> def.tracking_range:<[tracking_range]> def.fake_to:<[fake_to]> save:spawned
+    - define root <entry[spawned].created_queue.determination.first||null>
+    - if <[root]> != null:
+      - flag <[root]> modelengine_model_id:<[model_name]>
+    - determine <[root]>
+
+# Deletes ModelEngine model using internal layer
+dcutscene_me_delete_model:
+    type: task
+    debug: false
+    definitions: root
+    script:
+    - if <[root].is_spawned>:
+      - run modelengine_delete def:<[root]>
+
+# Resets ModelEngine model position using internal layer
+dcutscene_me_reset_model_position:
+    type: task
+    debug: false
+    definitions: root
+    script:
+    - if <[root].is_spawned>:
+      - run modelengine_reset_model_position def:<[root]>
+
 ## Data Operations #########
 # Saves a cutscene to a directory
 dcutscene_save_file:
