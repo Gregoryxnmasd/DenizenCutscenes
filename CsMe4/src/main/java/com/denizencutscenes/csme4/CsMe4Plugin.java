@@ -14,9 +14,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
+public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Listener {
     private final Map<String, InstanceData> instances = new HashMap<>();
 
     @Override
@@ -24,6 +28,16 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
         if (getCommand("cs_me4") != null) {
             getCommand("cs_me4").setExecutor(this);
         }
+        Bukkit.getPluginManager().registerEvents(this, this);
+    }
+
+    @Override
+    public void onDisable() {
+        for (InstanceData data : instances.values()) {
+            data.dummy().setRemoved(true);
+            data.modeledEntity().destroy();
+        }
+        instances.clear();
     }
 
     @Override
@@ -176,6 +190,28 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
 
         data.dummy().setRemoved(true);
         sender.sendMessage("Removed instance: " + args[1]);
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        cleanup_viewer(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void onPlayerKick(PlayerKickEvent event) {
+        cleanup_viewer(event.getPlayer().getUniqueId());
+    }
+
+    private void cleanup_viewer(UUID viewerUuid) {
+        instances.entrySet().removeIf(entry -> {
+            InstanceData data = entry.getValue();
+            if (!data.viewerUuid().equals(viewerUuid)) {
+                return false;
+            }
+            data.dummy().setRemoved(true);
+            data.modeledEntity().destroy();
+            return true;
+        });
     }
 
     private Player resolveViewer(CommandSender sender, String nameOrNull) {
