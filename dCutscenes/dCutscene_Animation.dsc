@@ -973,7 +973,7 @@ dcutscene_path_move:
                 - run dcutscene_modelengine_animation_stop def.entity:<[entity]>
               #Reset position
               - if !<[entity].has_flag[dcutscene_model_animation_state]> || <[entity].flag[dcutscene_model_animation_state]> != hold:
-            - run dcutscene_me_reset_position def:<[entity]>
+                - run dcutscene_me_reset_position def:<[entity]>
               #After
               - foreach <[keyframes]> key:aft_tick_id as:aft_keyframe:
                 - if <[aft_tick_id].is_more_than[<[time_1]>]>:
