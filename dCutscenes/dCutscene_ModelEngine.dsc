@@ -5,7 +5,7 @@
 # Spawn a ModelEngine model and return the root entity.
 dcutscene_me_spawn_model:
     type: task
-    debug: false
+    debug: true
     definitions: model_name|location|tracking_range|fake_to
     script:
     - define model_name <[model_name]||<[model]>>
@@ -21,7 +21,7 @@ dcutscene_me_spawn_model:
 # Remove a ModelEngine model.
 dcutscene_me_delete_model:
     type: task
-    debug: false
+    debug: true
     definitions: entity
     script:
     - if <[entity].is_spawned||false>:
@@ -30,7 +30,7 @@ dcutscene_me_delete_model:
 # Play a ModelEngine animation.
 dcutscene_me_animate:
     type: task
-    debug: false
+    debug: true
     definitions: entity|animation
     script:
     - if <[entity].is_spawned||false>:
@@ -39,7 +39,7 @@ dcutscene_me_animate:
 # Stop the current ModelEngine animation.
 dcutscene_me_stop_animation:
     type: task
-    debug: false
+    debug: true
     definitions: entity
     script:
     - if <[entity].is_spawned||false>:
@@ -48,7 +48,7 @@ dcutscene_me_stop_animation:
 # Reset the model to its default position.
 dcutscene_me_reset_position:
     type: task
-    debug: false
+    debug: true
     definitions: entity
     script:
     - if <[entity].is_spawned||false>:

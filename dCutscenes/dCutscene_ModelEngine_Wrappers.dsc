@@ -4,7 +4,7 @@
 
 modelengine_spawn_model:
   type: task
-  debug: false
+  debug: true
   definitions: model_name|location|tracking_range|viewer
   script:
   - define location <[location].as_location>
@@ -24,7 +24,7 @@ modelengine_spawn_model:
 
 modelengine_animate:
   type: task
-  debug: false
+  debug: true
   definitions: entity|animation
   script:
   - define command "modelengine animation play <[entity].uuid> <[animation]>"
@@ -36,7 +36,7 @@ modelengine_animate:
 
 modelengine_end_animation:
   type: task
-  debug: false
+  debug: true
   definitions: entity
   script:
   - define command "modelengine animation stop <[entity].uuid>"
@@ -48,7 +48,7 @@ modelengine_end_animation:
 
 modelengine_delete:
   type: task
-  debug: false
+  debug: true
   definitions: entity
   script:
   - define command "modelengine delete <[entity].uuid>"

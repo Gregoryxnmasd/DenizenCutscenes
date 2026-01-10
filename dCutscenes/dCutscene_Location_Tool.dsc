@@ -5,7 +5,7 @@
 # Event Handler for the location tool
 dcutscene_location_tool_events:
     type: world
-    debug: false
+    debug: true
     events:
       on player quits:
       - if <player.has_flag[dcutscene_location_editor]>:
@@ -154,7 +154,7 @@ dcutscene_location_tool_events:
 # Task for changing the location based on the location button tool
 dcutscene_location_button_change:
     type: task
-    debug: false
+    debug: true
     definitions: offset
     script:
     - define data <player.flag[dcutscene_location_editor]||null>
@@ -172,7 +172,7 @@ dcutscene_location_button_change:
 # Updates the ray tracer location tool
 dcutscene_location_ray_trace_update:
     type: task
-    debug: false
+    debug: true
     script:
     - define data <player.flag[dcutscene_location_editor]||null>
     - if <[data]> != null:
@@ -193,7 +193,7 @@ dcutscene_location_ray_trace_update:
 # Updates the semi path
 dcutscene_location_semi_path_interval:
     type: task
-    debug: false
+    debug: true
     script:
     - define root <player.flag[dcutscene_location_editor.root_ent]||null>
     - define rate <script[dcutscenes_config].data_key[config].get[cutscene_semi_path_update_interval]||0.5s>
@@ -214,7 +214,7 @@ dcutscene_location_semi_path_interval:
 # Ray traces the location based on the player's cursor
 dcutscene_location_edit_ray_trace:
     type: task
-    debug: false
+    debug: true
     definitions: max_range
     script:
     - define data <player.flag[dcutscene_location_editor]||null>
@@ -255,7 +255,7 @@ dcutscene_location_edit_ray_trace:
 # Spawns a model animator for the location tool and updates it
 dcutscene_location_tool_model_spawner:
     type: task
-    debug: false
+    debug: true
     definitions: root_type|attribute|loc
     script:
     - choose <[root_type]>:
@@ -273,7 +273,7 @@ dcutscene_location_tool_model_spawner:
 # Increases the distance of the ray trace tool
 dcutscene_location_edit_ray_trace_add_dist:
     type: task
-    debug: false
+    debug: true
     script:
     - if <player.has_flag[cutscene_modify]>:
       - define range <player.flag[dcutscene_location_editor.ray_trace_range]>
@@ -290,7 +290,7 @@ dcutscene_location_edit_ray_trace_add_dist:
 # Decreases the distance of the ray trace tool
 dcutscene_location_edit_ray_trace_sub_dist:
     type: task
-    debug: false
+    debug: true
     script:
     - if <player.has_flag[cutscene_modify]>:
       - define range <player.flag[dcutscene_location_editor.ray_trace_range]>
@@ -306,7 +306,7 @@ dcutscene_location_edit_ray_trace_sub_dist:
 # Determine if the ray trace tool will ignore passable blocks
 dcutscene_location_edit_ray_trace_nonsolids:
     type: task
-    debug: false
+    debug: true
     script:
     - if <player.has_flag[cutscene_modify]>:
       - define data <player.flag[dcutscene_location_editor]||null>
@@ -322,7 +322,7 @@ dcutscene_location_edit_ray_trace_nonsolids:
 # Determine if the ray trace tool will ignore fluids
 dcutscene_location_edit_ray_trace_water:
     type: task
-    debug: false
+    debug: true
     script:
     - if <player.has_flag[cutscene_modify]>:
       - define data <player.flag[dcutscene_location_editor]||null>
@@ -338,7 +338,7 @@ dcutscene_location_edit_ray_trace_water:
 # Rotates the model 180 degrees
 dcutscene_location_edit_ray_trace_rotate_model:
     type: task
-    debug: false
+    debug: true
     script:
     - if <player.has_flag[cutscene_modify]>:
       - define data <player.flag[dcutscene_location_editor]||null>
@@ -355,7 +355,7 @@ dcutscene_location_edit_ray_trace_rotate_model:
 # Sets up the player with the data for the location tool
 dcutscene_location_tool_give_data:
     type: task
-    debug: false
+    debug: true
     definitions: loc|root_ent|yaw|type|attribute
     script:
     - define loc <location[<[loc]>]||null>
@@ -385,7 +385,7 @@ dcutscene_location_tool_give_data:
 # Location Button Tool Inventory
 dcutscene_location_toolset_inv:
     type: task
-    debug: false
+    debug: true
     script:
     - define inv <player.inventory>
     - inventory set d:<[inv]> o:dcutscene_loc_forward slot:1
@@ -402,14 +402,14 @@ dcutscene_location_toolset_inv:
 # Returns the previous inventory
 dcutscene_location_tool_return_inv:
     type: task
-    debug: false
+    debug: true
     script:
     - inventory swap d:<player.inventory> o:<player.flag[dcutscene_location_editor.inv]>
 
 # Ray Trace Tool Inventory
 dcutscene_location_raytrace_inv:
     type: task
-    debug: false
+    debug: true
     script:
     - define inv <player.inventory>
     - inventory set d:<[inv]> o:dcutscene_loc_ray_trace slot:1

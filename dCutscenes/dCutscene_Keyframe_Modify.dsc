@@ -24,7 +24,7 @@
 #======== Play Another Scene Modifier ========
 dcutscene_play_scene_keyframe_modify:
     type: task
-    debug: false
+    debug: true
     definitions: option|arg
     script:
     - define data <player.flag[cutscene_data]>
@@ -95,7 +95,7 @@ dcutscene_play_scene_keyframe_modify:
 #======== Stop Cutscene Modifier ========
 dcutscene_stop_scene_keyframe:
     type: task
-    debug: false
+    debug: true
     definitions: option|arg
     script:
     - define data <player.flag[cutscene_data]>
@@ -133,7 +133,7 @@ dcutscene_stop_scene_keyframe:
 #================  Camera Modifier =====================
 dcutscene_cam_keyframe_edit:
     type: task
-    debug: false
+    debug: true
     definitions: option|arg|arg_2|arg_3
     script:
     - define option <[option]||null>
@@ -631,7 +631,7 @@ dcutscene_cam_keyframe_edit:
 #Removes the previous spawned model the player was modifying
 dcutscene_model_remove:
     type: task
-    debug: false
+    debug: true
     definitions: type|root_ent
     script:
     - if <[root_ent].is_spawned>:
@@ -643,7 +643,7 @@ dcutscene_model_remove:
 
 dcutscene_model_keyframe_edit:
     type: task
-    debug: false
+    debug: true
     definitions: option|arg|arg_2|arg_3
     script:
     - define option <[option]||null>
@@ -1866,7 +1866,7 @@ dcutscene_model_keyframe_edit:
 # If there are previously made models they are displayed for modification to add to a new tick if not create a new model instead
 dcutscene_model_list_new:
     type: task
-    debug: false
+    debug: true
     definitions: tick|scene|type|page
     script:
     - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
@@ -1988,7 +1988,7 @@ dcutscene_model_list_new:
 # Move a model animator to a new tick
 dcutscene_move_model_animator:
     type: task
-    debug: false
+    debug: true
     script:
     - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
     - define data <player.flag[cutscene_data]>
@@ -2081,7 +2081,7 @@ dcutscene_move_model_animator:
 # Duplicate a model animator to a new tick
 dcutscene_duplicate_model_animator:
     type: task
-    debug: false
+    debug: true
     script:
     - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
     - define data <player.flag[cutscene_data]>
@@ -2175,7 +2175,7 @@ dcutscene_duplicate_model_animator:
 # Remove model animator from tick
 dcutscene_remove_model_animator_from_tick:
     type: task
-    debug: false
+    debug: true
     definitions: type
     script:
     - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
@@ -2230,7 +2230,7 @@ dcutscene_remove_model_animator_from_tick:
 # Used to remove a model animator from the entire cutscene or the server flag dcutscenes
 dcutscene_remove_model_animator_all:
     type: task
-    debug: false
+    debug: true
     definitions: type
     script:
     - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
@@ -2290,7 +2290,7 @@ dcutscene_remove_model_animator_all:
 # Used to determine the previous skin in the player model keyframe
 dcutscene_determine_player_model_skin:
     type: procedure
-    debug: false
+    debug: true
     definitions: scene|tick|uuid
     script:
     - define data <server.flag[dcutscenes.<[scene]>]||null>
@@ -2338,7 +2338,7 @@ dcutscene_determine_player_model_skin:
 #Note that when creating a new animator it cannot use the keyframes definition instead
 dcutscene_animator_keyframe_edit:
     type: task
-    debug: false
+    debug: true
     definitions: option|arg|arg_2|arg_3
     script:
     - define option <[option]||null>
