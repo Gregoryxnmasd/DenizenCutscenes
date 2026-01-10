@@ -4,6 +4,8 @@ import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.dummy.Dummy;
 import com.ticxo.modelengine.api.entity.ActiveModel;
 import com.ticxo.modelengine.api.entity.ModeledEntity;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -108,7 +110,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
     private void handleAnimPlay(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage("Usage: /cs_me4 anim_play <instanceId> <animationId>");
+            sender.sendMessage("Usage: /cs_me4 anim_play <instanceId> <animationId> [fadeIn] [fadeOut] [speed] [loop]");
             return;
         }
 
@@ -119,13 +121,50 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
         }
 
         String animationId = args[2];
-        data.activeModel().getAnimationHandler().playAnimation(animationId, 0, 0);
+        float fadeIn = 0f;
+        float fadeOut = 0f;
+        float speed = 1f;
+        boolean loop = false;
+
+        if (args.length >= 4) {
+            Float parsedFadeIn = parseFloatArg(sender, args[3], "fadeIn");
+            if (parsedFadeIn == null) {
+                return;
+            }
+            fadeIn = parsedFadeIn;
+        }
+
+        if (args.length >= 5) {
+            Float parsedFadeOut = parseFloatArg(sender, args[4], "fadeOut");
+            if (parsedFadeOut == null) {
+                return;
+            }
+            fadeOut = parsedFadeOut;
+        }
+
+        if (args.length >= 6) {
+            Float parsedSpeed = parseFloatArg(sender, args[5], "speed");
+            if (parsedSpeed == null) {
+                return;
+            }
+            speed = parsedSpeed;
+        }
+
+        if (args.length >= 7) {
+            Boolean parsedLoop = parseBooleanArg(sender, args[6], "loop");
+            if (parsedLoop == null) {
+                return;
+            }
+            loop = parsedLoop;
+        }
+
+        data.activeModel().getAnimationHandler().playAnimation(animationId, fadeIn, fadeOut, speed, loop);
         sender.sendMessage("Playing animation " + animationId + " for " + args[1]);
     }
 
     private void handleAnimStop(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage("Usage: /cs_me4 anim_stop <instanceId> <animationId>");
+            sender.sendMessage("Usage: /cs_me4 anim_stop <instanceId> <animationId> [force]");
             return;
         }
 
@@ -136,7 +175,22 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
         }
 
         String animationId = args[2];
-        data.activeModel().getAnimationHandler().stopAnimation(animationId);
+        boolean force = false;
+        if (args.length >= 4) {
+            Boolean parsedForce = parseBooleanArg(sender, args[3], "force");
+            if (parsedForce == null) {
+                return;
+            }
+            force = parsedForce;
+        }
+
+        if (force) {
+            if (!forceStopAnimationIfAvailable(data.activeModel(), animationId)) {
+                data.activeModel().getAnimationHandler().stopAnimation(animationId);
+            }
+        } else {
+            data.activeModel().getAnimationHandler().stopAnimation(animationId);
+        }
         sender.sendMessage("Stopped animation " + animationId + " for " + args[1]);
     }
 
@@ -297,56 +351,60 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
     private void sendUsage(CommandSender sender) {
         sender.sendMessage("/cs_me4 create <instanceId> <modelId> [viewer]");
-        sender.sendMessage("/cs_me4 anim_play <instanceId> <animationId>");
-        sender.sendMessage("/cs_me4 anim_stop <instanceId> <animationId>");
-        sender.sendMessage("/cs_me4 move <instanceId> [x y z yaw pitch [world]]");
-        sender.sendMessage("/cs_me4 visibility <instanceId> <visible|hidden>");
+        sender.sendMessage("/cs_me4 anim_play <instanceId> <animationId> [fadeIn] [fadeOut] [speed] [loop]");
+        sender.sendMessage("/cs_me4 anim_stop <instanceId> <animationId> [force]");
+        sender.sendMessage("/cs_me4 move <instanceId> [x y z]");
         sender.sendMessage("/cs_me4 remove <instanceId>");
     }
 
-    private static final class InstanceData {
-        private final Dummy<?> dummy;
-        private final ModeledEntity modeledEntity;
-        private final ActiveModel activeModel;
-        private final UUID viewerUuid;
-        private boolean forceHidden;
-
-        private InstanceData(
-                Dummy<?> dummy,
-                ModeledEntity modeledEntity,
-                ActiveModel activeModel,
-                UUID viewerUuid,
-                boolean forceHidden
-        ) {
-            this.dummy = dummy;
-            this.modeledEntity = modeledEntity;
-            this.activeModel = activeModel;
-            this.viewerUuid = viewerUuid;
-            this.forceHidden = forceHidden;
+    private Float parseFloatArg(CommandSender sender, String value, String label) {
+        try {
+            return Float.parseFloat(value);
+        } catch (NumberFormatException ex) {
+            sender.sendMessage(label + " must be a number.");
+            return null;
         }
+    }
 
-        private Dummy<?> dummy() {
-            return dummy;
+    private Boolean parseBooleanArg(CommandSender sender, String value, String label) {
+        if ("true".equalsIgnoreCase(value)) {
+            return true;
         }
+        if ("false".equalsIgnoreCase(value)) {
+            return false;
+        }
+        sender.sendMessage(label + " must be true or false.");
+        return null;
+    }
 
-        private ModeledEntity modeledEntity() {
-            return modeledEntity;
+    private boolean forceStopAnimationIfAvailable(ActiveModel model, String animationId) {
+        Object handler = model.getAnimationHandler();
+        try {
+            Method method = handler.getClass().getMethod("forceStopAnimation", String.class);
+            method.invoke(handler, animationId);
+            return true;
+        } catch (NoSuchMethodException ignored) {
+            try {
+                Method method = handler.getClass().getMethod("stopAnimation", String.class, boolean.class);
+                method.invoke(handler, animationId, true);
+                return true;
+            } catch (NoSuchMethodException ignoredAgain) {
+                return false;
+            } catch (IllegalAccessException | InvocationTargetException ex) {
+                getLogger().warning("Failed to force stop animation " + animationId + ": " + ex.getMessage());
+                return false;
+            }
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            getLogger().warning("Failed to force stop animation " + animationId + ": " + ex.getMessage());
+            return false;
         }
+    }
 
-        private ActiveModel activeModel() {
-            return activeModel;
-        }
-
-        private UUID viewerUuid() {
-            return viewerUuid;
-        }
-
-        private boolean forceHidden() {
-            return forceHidden;
-        }
-
-        private void setForceHidden(boolean forceHidden) {
-            this.forceHidden = forceHidden;
-        }
+    private record InstanceData(
+            Dummy<?> dummy,
+            ModeledEntity modeledEntity,
+            ActiveModel activeModel,
+            UUID viewerUuid
+    ) {
     }
 }
