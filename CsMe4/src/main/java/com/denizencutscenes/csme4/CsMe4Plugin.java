@@ -47,6 +47,9 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
             case "move":
                 handleMove(sender, args);
                 return true;
+            case "visibility":
+                handleVisibility(sender, args);
+                return true;
             case "remove":
                 handleRemove(sender, args);
                 return true;
@@ -85,7 +88,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
 
         dummy.setForceViewing(viewer, true);
 
-        instances.put(instanceId, new InstanceData(dummy, modeledEntity, activeModel, viewer.getUniqueId()));
+        instances.put(instanceId, new InstanceData(dummy, modeledEntity, activeModel, viewer.getUniqueId(), false));
         sender.sendMessage("Created ModelEngine instance: " + instanceId);
     }
 
@@ -125,7 +128,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
 
     private void handleMove(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage("Usage: /cs_me4 move <instanceId> [x y z]");
+            sender.sendMessage("Usage: /cs_me4 move <instanceId> [x y z yaw pitch [world]]");
             return;
         }
 
@@ -145,8 +148,22 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
                 targetLocation.setX(x);
                 targetLocation.setY(y);
                 targetLocation.setZ(z);
+                if (args.length >= 7) {
+                    float yaw = Float.parseFloat(args[5]);
+                    float pitch = Float.parseFloat(args[6]);
+                    targetLocation.setYaw(yaw);
+                    targetLocation.setPitch(pitch);
+                }
+                if (args.length >= 8) {
+                    var world = Bukkit.getWorld(args[7]);
+                    if (world == null) {
+                        sender.sendMessage("Unknown world: " + args[7]);
+                        return;
+                    }
+                    targetLocation.setWorld(world);
+                }
             } catch (NumberFormatException ex) {
-                sender.sendMessage("Coordinates must be numbers.");
+                sender.sendMessage("Coordinates, yaw, and pitch must be numbers.");
                 return;
             }
         } else if (sender instanceof Player player) {
@@ -159,7 +176,47 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
         }
 
         data.dummy().setLocation(targetLocation);
+        applyVisibility(data);
         sender.sendMessage("Moved instance " + args[1]);
+    }
+
+    private void handleVisibility(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            sender.sendMessage("Usage: /cs_me4 visibility <instanceId> <visible|hidden>");
+            return;
+        }
+
+        InstanceData data = instances.get(args[1]);
+        if (data == null) {
+            sender.sendMessage("Unknown instance: " + args[1]);
+            return;
+        }
+
+        String mode = args[2].toLowerCase(Locale.ROOT);
+        boolean hidden;
+        switch (mode) {
+            case "hidden":
+            case "hide":
+            case "false":
+            case "off":
+            case "0":
+                hidden = true;
+                break;
+            case "visible":
+            case "show":
+            case "true":
+            case "on":
+            case "1":
+                hidden = false;
+                break;
+            default:
+                sender.sendMessage("Visibility must be 'visible' or 'hidden'.");
+                return;
+        }
+
+        data.setForceHidden(hidden);
+        applyVisibility(data);
+        sender.sendMessage("Visibility for " + args[1] + " set to " + (hidden ? "hidden" : "visible"));
     }
 
     private void handleRemove(CommandSender sender, String[] args) {
@@ -188,19 +245,72 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
         return null;
     }
 
+    private void applyVisibility(InstanceData data) {
+        Player viewer = Bukkit.getPlayer(data.viewerUuid());
+        if (viewer == null) {
+            return;
+        }
+        if (data.forceHidden()) {
+            data.dummy().setForceHidden(viewer, true);
+            data.dummy().setForceViewing(viewer, false);
+        } else {
+            data.dummy().setForceHidden(viewer, false);
+            data.dummy().setForceViewing(viewer, true);
+        }
+    }
+
     private void sendUsage(CommandSender sender) {
         sender.sendMessage("/cs_me4 create <instanceId> <modelId> [viewer]");
         sender.sendMessage("/cs_me4 anim_play <instanceId> <animationId>");
         sender.sendMessage("/cs_me4 anim_stop <instanceId> <animationId>");
-        sender.sendMessage("/cs_me4 move <instanceId> [x y z]");
+        sender.sendMessage("/cs_me4 move <instanceId> [x y z yaw pitch [world]]");
+        sender.sendMessage("/cs_me4 visibility <instanceId> <visible|hidden>");
         sender.sendMessage("/cs_me4 remove <instanceId>");
     }
 
-    private record InstanceData(
-            Dummy<?> dummy,
-            ModeledEntity modeledEntity,
-            ActiveModel activeModel,
-            UUID viewerUuid
-    ) {
+    private static final class InstanceData {
+        private final Dummy<?> dummy;
+        private final ModeledEntity modeledEntity;
+        private final ActiveModel activeModel;
+        private final UUID viewerUuid;
+        private boolean forceHidden;
+
+        private InstanceData(
+                Dummy<?> dummy,
+                ModeledEntity modeledEntity,
+                ActiveModel activeModel,
+                UUID viewerUuid,
+                boolean forceHidden
+        ) {
+            this.dummy = dummy;
+            this.modeledEntity = modeledEntity;
+            this.activeModel = activeModel;
+            this.viewerUuid = viewerUuid;
+            this.forceHidden = forceHidden;
+        }
+
+        private Dummy<?> dummy() {
+            return dummy;
+        }
+
+        private ModeledEntity modeledEntity() {
+            return modeledEntity;
+        }
+
+        private ActiveModel activeModel() {
+            return activeModel;
+        }
+
+        private UUID viewerUuid() {
+            return viewerUuid;
+        }
+
+        private boolean forceHidden() {
+            return forceHidden;
+        }
+
+        private void setForceHidden(boolean forceHidden) {
+            this.forceHidden = forceHidden;
+        }
     }
 }
