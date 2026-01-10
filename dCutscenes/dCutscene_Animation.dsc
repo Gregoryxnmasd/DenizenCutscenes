@@ -34,6 +34,68 @@ dcutscene_animation_events:
       on player damaged flagged:dcutscene_camera:
       - determine 0.0
 
+#========= ModelEngine 4 Animation Helpers =========
+dcutscene_modelengine_animation_parse:
+    type: procedure
+    debug: false
+    definitions: animation
+    script:
+    - if <[animation]> == null:
+      - determine <map[name:null;mode:none]>
+    - if <[animation]> == false:
+      - determine <map[name:false;mode:none]>
+    - if <[animation]> == stop:
+      - determine <map[name:stop;mode:stop]>
+    - define anim_name <[animation]>
+    - define mode once
+    - if <[animation].contains[:]>:
+      - define parts <[animation].split[:]>
+      - define last_part <[parts].last>
+      - if <list[loop|hold|once].contains[<[last_part]>]>:
+        - define mode <[last_part]>
+        - define anim_name <[parts].exclude[<[last_part]>].separated_by[:]>
+    - determine <map[name:<[anim_name]>;mode:<[mode]>]>
+
+dcutscene_modelengine_animation_play:
+    type: task
+    debug: false
+    definitions: entity|animation
+    script:
+    - if <[entity]> == null:
+      - stop
+    - define parsed <proc[dcutscene_modelengine_animation_parse].context[<[animation]>]>
+    - if <[parsed.name]> == null || <[parsed.name]> == false:
+      - stop
+    - if <[parsed.name]> == stop:
+      - run dcutscene_modelengine_animation_stop def.entity:<[entity]>
+      - stop
+    - define mode <[parsed.mode]||once>
+    - define model_id <[entity].flag[modelengine_model_id]||null>
+    - if <[model_id]> != null:
+      - flag server dcutscene_modelengine_models.<[model_id]>:true
+      - flag server dcutscene_modelengine_animations.<[model_id]>.<[parsed.name]>:true
+    - execute as_server "modelengine animation play <[entity].uuid> <[parsed.name]> <[mode]>"
+    - flag <[entity]> dcutscene_modelengine_animation.name:<[parsed.name]>
+    - flag <[entity]> dcutscene_modelengine_animation.mode:<[mode]>
+    - flag <[entity]> dcutscene_modelengine_animation.state:playing
+    - if <[mode]> == hold:
+      - flag <[entity]> dcutscene_model_animation_state:hold
+    - else:
+      - flag <[entity]> dcutscene_model_animation_state:!
+
+dcutscene_modelengine_animation_stop:
+    type: task
+    debug: false
+    definitions: entity
+    script:
+    - if <[entity]> == null:
+      - stop
+    - execute as_server "modelengine animation stop <[entity].uuid>"
+    - flag <[entity]> dcutscene_modelengine_animation.state:stopped
+    - flag <[entity]> dcutscene_modelengine_animation.name:!
+    - flag <[entity]> dcutscene_modelengine_animation.mode:!
+    - flag <[entity]> dcutscene_model_animation_state:!
+
 #========= Cutscene Animator Tasks and Procedures =========
 # Start the cutscene
 dcutscene_animation_begin:
@@ -159,8 +221,8 @@ dcutscene_animation_begin:
               - choose <[type]>:
                 #=Model
                 - case model:
-                  - define script <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
                   - define model_name <[model_data.model]>
+                  - flag server dcutscene_modelengine_models.<[model_name]>:true
                   - if <[script]> == null:
                     - debug error "Could not spawn model <[model_name]>. Is ModelEngine 4 installed and configured?"
                     - foreach next
@@ -197,6 +259,17 @@ dcutscene_animation_begin:
               - define root <entry[spawned].created_queue.determination.first>
               - if <[type]> == model:
                 - flag <[root]> modelengine_model_id:<[model_name]>
+                - flag <[root]> dcutscene_model_id:<[model_id]>
+                - flag <[player]> dcutscene_models.instances.<[model_id]>.root:<[root]>
+                - flag <[player]> dcutscene_models.instances.<[model_id]>.modelengine_id:<[model_name]>
+                - flag <[player]> dcutscene_models.instances.<[model_id]>.owner:<[player]>
+                - flag <[player]> dcutscene_models.instances.<[model_id]>.animation.current:stop
+                - flag <[player]> dcutscene_models.instances.<[model_id]>.animation.state:stop
+                - flag server dcutscene_models.instances.<[model_id]>.root:<[root]>
+                - flag server dcutscene_models.instances.<[model_id]>.modelengine_id:<[model_name]>
+                - flag server dcutscene_models.instances.<[model_id]>.owner:<[player]>
+                - flag server dcutscene_models.instances.<[model_id]>.animation.current:stop
+                - flag server dcutscene_models.instances.<[model_id]>.animation.state:stop
               - chunkload <[root].location.chunk> duration:5t
               # Track spawned model
               - flag <[player]> dcutscene_spawned_models.<[model_id]>.root:<[root]>
@@ -877,6 +950,7 @@ dcutscene_path_move:
           #====================== Model Path Move =======================
           - case model:
             #=Preparation
+            - run dcutscene_models_registry_sync
             - define keyframes <[cutscene.keyframes.models.<[data.tick]>.<[data.uuid]>.path]>
             - foreach <[keyframes]> key:tick_id as:keyframe:
               - define time_1 <[keyframe.tick]||null>
@@ -894,17 +968,12 @@ dcutscene_path_move:
               - define animation <[keyframe.animation]>
               #Model Animation
               - if <[animation]> != false && <[animation]> != stop:
-                - run modelengine_animate def:<[entity]>|<[animation]>
-                - define loop <server.flag[modelengine_data.animations_<[entity].flag[modelengine_model_id]>.<[animation]>.loop]||false>
-                - if <[loop]> == hold:
-                  - flag <[entity]> dcutscene_model_animation_state:hold
-                - else:
-                  - flag <[entity]> dcutscene_model_animation_state:!
+                - run dcutscene_modelengine_animation_play def.entity:<[entity]> def.animation:<[animation]>
               - else if <[animation]> == stop:
-                - run modelengine_end_animation def:<[entity]>
+                - run dcutscene_modelengine_animation_stop def.entity:<[entity]>
               #Reset position
               - if !<[entity].has_flag[dcutscene_model_animation_state]> || <[entity].flag[dcutscene_model_animation_state]> != hold:
-                - run modelengine_reset_model_position def:<[entity]>
+            - run dcutscene_me_reset_position def:<[entity]>
               #After
               - foreach <[keyframes]> key:aft_tick_id as:aft_keyframe:
                 - if <[aft_tick_id].is_more_than[<[time_1]>]>:
