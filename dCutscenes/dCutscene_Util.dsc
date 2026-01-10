@@ -451,6 +451,19 @@ dcutscene_command:
                 - run dcutscene_animator_keyframe_edit def:particle|change_particle|<[a_2]>
 
 # Tab completion for list of cutscenes or animator modifiers that utilize data from the server
+dcutscene_model_index:
+    type: procedure
+    debug: false
+    script:
+    - define model_index <server.flag[dcutscene_me_models]||null>
+    - if <[model_index]> == null:
+      - define config_models <script[dcutscenes_config].data_key[config].get[dcutscene_me_models].if_null[<list>]>
+      - if <[config_models].is_empty>:
+        - determine <list>
+      - flag server dcutscene_me_models:<[config_models]>
+      - determine <[config_models]>
+    - determine <[model_index]||<list>>
+
 dcutscene_data_list:
     type: procedure
     debug: false
@@ -460,7 +473,7 @@ dcutscene_data_list:
       - determine <server.flag[dcutscenes].keys||<empty>>
     - choose <[player].flag[cutscene_modify_tab]>:
       - case model:
-        - determine <server.flag[modelengine_data].keys.filter[starts_with[model_]].parse[after[model_]].if_null[<empty>]>
+        - determine <proc[dcutscene_model_index].if_null[<empty>]>
       - case sound:
         - determine <server.sound_types>
       - case animate:
