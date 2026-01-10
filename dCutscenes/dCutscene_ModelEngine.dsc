@@ -15,8 +15,8 @@ dcutscene_me_spawn_model:
       - determine null
     - define tracking_range <[tracking_range].if_null[256]>
     - define fake_to <[fake_to].if_null[<server.online_players>]>
-    - modelengine spawn model:<[model_name]> location:<[location]> tracking_range:<[tracking_range]> viewers:<[fake_to]> save:spawned
-    - determine <entry[spawned].determination||<entry[spawned].spawned_entity||<entry[spawned].created_queue.determination.first||null>>>
+    - run modelengine_spawn_model def.model_name:<[model_name]> def.location:<[location]> def.tracking_range:<[tracking_range]> def.viewer:<[fake_to]> save:spawned
+    - determine <entry[spawned].determination.first||<entry[spawned].determination||<entry[spawned].spawned_entity||<entry[spawned].created_queue.determination.first||null>>>>
 
 # Remove a ModelEngine model.
 dcutscene_me_delete_model:
@@ -25,7 +25,7 @@ dcutscene_me_delete_model:
     definitions: entity
     script:
     - if <[entity].is_spawned||false>:
-      - modelengine delete entity:<[entity]>
+      - run modelengine_delete def:<[entity]>
 
 # Play a ModelEngine animation.
 dcutscene_me_animate:
@@ -34,7 +34,7 @@ dcutscene_me_animate:
     definitions: entity|animation
     script:
     - if <[entity].is_spawned||false>:
-      - modelengine animate entity:<[entity]> animation:<[animation]>
+      - run modelengine_animate def.entity:<[entity]> def.animation:<[animation]>
 
 # Stop the current ModelEngine animation.
 dcutscene_me_stop_animation:
@@ -43,7 +43,7 @@ dcutscene_me_stop_animation:
     definitions: entity
     script:
     - if <[entity].is_spawned||false>:
-      - modelengine stop_animation entity:<[entity]>
+      - run modelengine_end_animation def:<[entity]>
 
 # Reset the model to its default position.
 dcutscene_me_reset_position:
@@ -52,4 +52,4 @@ dcutscene_me_reset_position:
     definitions: entity
     script:
     - if <[entity].is_spawned||false>:
-      - modelengine reset_position entity:<[entity]>
+      - execute as_server "modelengine reset_position <[entity].uuid>" silent
