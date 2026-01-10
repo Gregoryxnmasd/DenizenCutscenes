@@ -666,15 +666,15 @@ dcutscene_model_keyframe_edit:
               #-Create new model ID
               - case create_id:
                 - define raw_input <[arg_2].strip_color.trim>
-                - define normalized_input <[raw_input].replace_regex[ +].with[ ]>
+                - define normalized_input <[raw_input]>
                 - define model_id null
                 - define model_name null
                 - if <[normalized_input].contains[|]>:
                   - define parts <[normalized_input].split[|].parse_tag[<[parse_value].trim>]>
                   - foreach <[parts]> as:part:
-                    - if <[model_id]> == null && <[part].length.is[0].not>:
+                    - if <[model_id]> == null && <[part].is_empty.not>:
                       - define model_id <[part]>
-                    - else if <[model_id]> != null && <[model_name]> == null && <[part].length.is[0].not>:
+                    - else if <[model_id]> != null && <[model_name]> == null && <[part].is_empty.not>:
                       - define model_name <[part]>
                 - else if <[normalized_input].contains[ ]>:
                   - define model_id <[normalized_input].before[ ]||null>
@@ -683,7 +683,7 @@ dcutscene_model_keyframe_edit:
                   - define model_id <[normalized_input]>
                 - if <[model_name]> != null:
                   - define model_name <[model_name].trim>
-                - if <[model_name]> != null && <[model_name].length.is[0]>:
+                - if <[model_name]> != null && <[model_name].is_empty>:
                   - define model_name null
                 - if <[model_id]> == null || <[model_id].is_empty>:
                   - define text "Invalid model input '<[raw_input]>' - examples: ID, ID|model, ID model."
