@@ -105,6 +105,12 @@ dcutscenes_config:
       #but can also auto-hydrate from server.flag[modelengine_data] when available.
       dcutscene_me_models: []
 
+      #Bridge plugin name required for cutscene model operations.
+      cutscene_bridge_plugin: CutsceneBridge
+
+      #Bridge command prefix used for ModelEngine 4 instance management.
+      cutscene_bridge_command: cs_me4
+
 #==== API Usage ====
 
 #==Run Tasks

@@ -42,7 +42,7 @@ modelengine_spawn_model:
 modelengine_animate:
   type: task
   debug: true
-  definitions: entity|animation
+  definitions: entity|animation|instance_id
   script:
   - define command "cs_me4 anim_play <[entity].uuid> <[animation]>"
   - execute as_server <[command]> silent
@@ -54,7 +54,7 @@ modelengine_animate:
 modelengine_end_animation:
   type: task
   debug: true
-  definitions: entity
+  definitions: entity|instance_id
   script:
   - define command "cs_me4 anim_stop <[entity].uuid>"
   - execute as_server <[command]> silent
@@ -66,7 +66,7 @@ modelengine_end_animation:
 modelengine_delete:
   type: task
   debug: true
-  definitions: entity
+  definitions: entity|instance_id
   script:
   - define command "cs_me4 remove <[entity].uuid>"
   - execute as_server <[command]> silent
@@ -78,7 +78,7 @@ modelengine_delete:
 modelengine_reset_model_position:
   type: task
   debug: false
-  definitions: entity
+  definitions: entity|instance_id
   script:
   - define command "cs_me4 move <[entity].uuid> reset_position"
   - execute as_server <[command]> silent

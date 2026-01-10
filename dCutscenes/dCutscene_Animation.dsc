@@ -34,6 +34,34 @@ dcutscene_animation_events:
       on player damaged flagged:dcutscene_camera:
       - determine 0.0
 
+dcutscene_modelengine_keyframe_bridge:
+    type: world
+    debug: true
+    events:
+      on modelengine scriptable keyframe:
+      - define entity <context.entity||context.model||null>
+      - if <[entity]> == null:
+        - stop
+      - define instance_id <[entity].flag[dcutscene_model_id]||null>
+      - define model_id <[entity].flag[modelengine_model_id]||null>
+      - define animation <context.animation||<[entity].flag[dcutscene_modelengine_animation.name]||null>>
+      - define keyframe_meta <map[
+          name=<context.keyframe||context.keyframe_name||context.name||null>;
+          uuid=<context.keyframe_uuid||context.uuid||null>;
+          type=<context.keyframe_type||context.type||null>;
+          data=<context.data||null>;
+          tick=<context.tick||context.time||null>
+        ]>
+      - define payload <map[
+          instanceId=<[instance_id]>;
+          modelId=<[model_id]>;
+          animation=<[animation]>;
+          keyframe=<[keyframe_meta]>;
+          entity=<[entity]>;
+          sceneUuid=<[entity].flag[dcutscene_scene_uuid]||null>
+        ]>
+      - event "dcutscene modelengine keyframe" context:<[payload]>
+
 #========= ModelEngine 4 Animation Helpers =========
 dcutscene_modelengine_animation_parse:
     type: procedure
@@ -59,7 +87,7 @@ dcutscene_modelengine_animation_parse:
 dcutscene_modelengine_animation_play:
     type: task
     debug: true
-    definitions: entity|animation
+    definitions: entity|animation|fade_in|fade_out|speed|loop
     script:
     - if <[entity]> == null:
       - stop
@@ -69,15 +97,33 @@ dcutscene_modelengine_animation_play:
     - if <[parsed.name]> == stop:
       - run dcutscene_modelengine_animation_stop def.entity:<[entity]>
       - stop
+    - define fade_in_input <[fade_in].if_null[0t]>
+    - define fade_out_input <[fade_out].if_null[0t]>
+    - define speed <[speed].if_null[1]>
+    - define loop <[loop].if_null[null]>
+    - if <[loop]> == null:
+      - define loop <[parsed.mode].equals_case_sensitive[loop]>
+    - if <[fade_in_input].is_integer>:
+      - define fade_in_ticks <[fade_in_input]>
+    - else:
+      - define fade_in_ticks <duration[<[fade_in_input]>].in_ticks>
+    - if <[fade_out_input].is_integer>:
+      - define fade_out_ticks <[fade_out_input]>
+    - else:
+      - define fade_out_ticks <duration[<[fade_out_input]>].in_ticks>
     - define mode <[parsed.mode]||once>
     - define model_id <[entity].flag[modelengine_model_id]||null>
     - define owner <[entity].flag[dcutscene_model_owner]||<player||null>>
     - define scene_uuid <[entity].flag[dcutscene_scene_uuid]||<[owner].flag[dcutscene_played_scene.uuid]||null>>
+    - define instance_id <[entity].flag[cs_instance_id]||null>
     - if <[model_id]> != null && <[owner]> != null:
       - define scope <[scene_uuid].if_null[editor]>
       - flag <[owner]> dcutscene_modelengine_models.<[scope]>.<[model_id]>:true
       - flag <[owner]> dcutscene_modelengine_animations.<[scope]>.<[model_id]>.<[parsed.name]>:true
-    - execute as_server "modelengine animation play <[entity].uuid> <[parsed.name]> <[mode]>"
+    - if <[instance_id]> != null:
+      - execute as_server "modelengine animation play <[entity].uuid> <[parsed.name]> <[mode]> <[instance_id]>"
+    - else:
+      - execute as_server "modelengine animation play <[entity].uuid> <[parsed.name]> <[mode]>"
     - flag <[entity]> dcutscene_modelengine_animation.name:<[parsed.name]>
     - flag <[entity]> dcutscene_modelengine_animation.mode:<[mode]>
     - flag <[entity]> dcutscene_modelengine_animation.state:playing
@@ -93,12 +139,86 @@ dcutscene_modelengine_animation_stop:
     script:
     - if <[entity]> == null:
       - stop
-    - execute as_server "modelengine animation stop <[entity].uuid>"
+    - define instance_id <[entity].flag[cs_instance_id]||null>
+    - if <[instance_id]> != null:
+      - execute as_server "modelengine animation stop <[entity].uuid> <[instance_id]>"
+    - else:
+      - execute as_server "modelengine animation stop <[entity].uuid>"
     - flag <[entity]> dcutscene_modelengine_animation.state:stopped
     - flag <[entity]> dcutscene_modelengine_animation.name:!
     - flag <[entity]> dcutscene_modelengine_animation.mode:!
     - flag <[entity]> dcutscene_modelengine_animation.stop_tick:!
     - flag <[entity]> dcutscene_model_animation_state:!
+
+#========= Bridge Validation Helpers =========
+dcutscene_bridge_plugin_enabled:
+    type: procedure
+    debug: true
+    script:
+    - define plugin_name <script[dcutscenes_config].data_key[config].get[cutscene_bridge_plugin]||null>
+    - if <[plugin_name]> == null || <[plugin_name].trim.is_empty>:
+      - determine false
+    - determine <server.has_plugin[<[plugin_name]>]||false>
+
+dcutscene_bridge_model_registry:
+    type: procedure
+    debug: true
+    script:
+    - if <server.has_flag[modelengine_data]>:
+      - define me_models <server.flag[modelengine_data].keys.filter[starts_with[model_]].parse_tag[<[parse_value].after[model_]>]||<list>>
+      - determine <[me_models]||<list>>
+    - define config_models <script[dcutscenes_config].data_key[config].get[dcutscene_me_models].if_null[<list>]>
+    - determine <[config_models]||<list>>
+
+dcutscene_bridge_validate_scene_models:
+    type: procedure
+    debug: true
+    definitions: models
+    script:
+    - if <[models]> == null:
+      - determine <map[valid:true;invalid:<list>]>
+    - define registry <proc[dcutscene_bridge_model_registry]>
+    - define invalid <list>
+    - define has_modelengine false
+    - foreach <[models]> key:tick as:model:
+      - define model_list <[model.model_list]||<list>>
+      - foreach <[model_list]> as:model_uuid:
+        - define model_data <[model.<[model_uuid]>]||null>
+        - if <[model_data]> == null:
+          - foreach next
+        - if <[model_data.type]||none> != model:
+          - foreach next
+        - define has_modelengine true
+        - define model_name <[model_data.model]||null>
+        - if <[registry].is_empty>:
+          - define invalid:->:<[model_name]||unknown>
+          - foreach next
+        - if <[model_name]> == null || !<[registry].contains[<[model_name]>]>:
+          - define invalid:->:<[model_name]||unknown>
+    - if !<[has_modelengine]>:
+      - determine <map[valid:true;invalid:<list>]>
+    - determine <map[valid:<[invalid].is_empty>;invalid:<[invalid].deduplicate>]>
+
+dcutscene_bridge_command:
+    type: task
+    debug: true
+    definitions: command|player|scene_uuid|allow_cleanup
+    script:
+    - define allow_cleanup <[allow_cleanup].if_null[true]>
+    - if <[player].is_player||false> && <[player].has_flag[dcutscene_cleanup_in_progress]>:
+      - define allow_cleanup false
+    - execute as_server "<[command]>" save:bridge_command
+    - define result_text <entry[bridge_command].result||"">
+    - define result_lower <[result_text].to_lowercase>
+    - define success <entry[bridge_command].success||false>
+    - define failed <[success].not>
+    - if <[result_lower].contains[missing instance]> || <[result_lower].contains[viewer offline]>:
+      - define failed true
+    - if <[failed]>:
+      - debug error "Bridge command failed for cutscene <[scene_uuid]>: <[command]> -> <[result_text]>"
+      - if <[allow_cleanup]> && <[player].is_player||false> && <[player].flag[dcutscene_played_scene.uuid]||null> == <[scene_uuid]>:
+        - run dcutscene_animation_stop def.player:<[player]>
+      - stop
 
 #========= Cutscene Animator Tasks and Procedures =========
 # Start the cutscene
@@ -128,10 +248,23 @@ dcutscene_animation_begin:
         - debug error "Length of cutscene could not be found for scene <[scene]>"
         - stop
       #=Cutscene Setup
+      # Bridge validation
+      - if !<proc[dcutscene_bridge_plugin_enabled]>:
+        - define bridge_plugin <script[dcutscenes_config].data_key[config].get[cutscene_bridge_plugin]||unknown>
+        - debug error "Bridge plugin <[bridge_plugin]> is not enabled. Cannot start cutscene <[scene]>."
+        - stop
       # Scene UUID
       - define scene_uuid <util.random_uuid>
+      - define models <[keyframes.models]||null>
+      - define model_validation <proc[dcutscene_bridge_validate_scene_models].context[<[models]>]>
+      - if !<[model_validation.valid]||false>:
+        - debug error "Cutscene <[scene]> contains invalid ModelEngine model IDs: <[model_validation.invalid]||<list>>"
+        - stop
       - definemap scene_data name:<[cutscene.name]> uuid:<[scene_uuid]>
       - flag <[player]> dcutscene_played_scene:<[scene_data]>
+      # Instance IDs
+      - define instance_id "<[cutscene.name]>_<[player].uuid>_<util.time_now.format[yyyyMMddHHmmssSSS]>"
+      - flag <[player]> cs_instance_id:<[instance_id]>
       # World
       - define world <world[<[world]||<[cutscene.world].first>>]||null>
       - if <[world]> == null:
@@ -152,7 +285,7 @@ dcutscene_animation_begin:
       - if !<[origin].exists>:
         - define origin <[settings.origin]||false>
       # Models in keyframes
-      - define models <[keyframes.models]||null>
+      - define models <[models]||null>
       # Elements in keyframe
       - define elements <[keyframes.elements]||null>
       # Play another scene in keyframe
@@ -265,6 +398,9 @@ dcutscene_animation_begin:
                 - flag <[root]> dcutscene_model_id:<[model_id]>
                 - flag <[root]> dcutscene_model_owner:<[player]>
                 - flag <[root]> dcutscene_scene_uuid:<[scene_uuid]>
+                - define actor_instance_id "<[player].flag[cs_instance_id]>_<[model_id]>"
+                - flag <[player]> cs_actor_<[model_id]>_instance:<[actor_instance_id]>
+                - flag <[root]> cs_instance_id:<[actor_instance_id]>
                 - flag <[player]> dcutscene_models.instances.<[scene_uuid]>.<[model_id]>.root:<[root]>
                 - flag <[player]> dcutscene_models.instances.<[scene_uuid]>.<[model_id]>.modelengine_id:<[model_name]>
                 - flag <[player]> dcutscene_models.instances.<[scene_uuid]>.<[model_id]>.owner:<[player]>
@@ -700,7 +836,11 @@ dcutscene_animation_cleanup_models:
         - case player_model:
           - run pmodels_remove_model def:<[model.root]>
         - case model:
-          - run modelengine_delete def:<[model.root]>
+          - define instance_id <[model.root].flag[cs_instance_id]||null>
+          - if <[instance_id]> != null:
+            - execute as_server "modelengine delete <[model.root].uuid> <[instance_id]>" silent
+          - else:
+            - run modelengine_delete def:<[model.root]>
     - flag <[player]> dcutscene_spawned_models:!
 
 #======== Cutscene Animation Stop ============
@@ -710,6 +850,11 @@ dcutscene_animation_stop:
     definitions: player
     script:
     - define player <[player]||<player>>
+    - flag <[player]> dcutscene_cleanup_in_progress:true
+    - define bridge_command <script[dcutscenes_config].data_key[config].get[cutscene_bridge_command]||cs_me4>
+    - define bridge_instance <[player].flag[dcutscene_bridge_instance_id]||null>
+    - if <[bridge_instance]> != null:
+      - run dcutscene_bridge_command def.command:"<[bridge_command]> remove <[bridge_instance]>" def.player:<[player]> def.scene_uuid:<[bridge_instance]>
     - inventory swap d:<[player].inventory> o:<[player].flag[dcutscene_played_scene_inv].if_null[<player.inventory>]>
     - cast INVISIBILITY remove
     - adjust <[player]> stop_sound
@@ -736,7 +881,9 @@ dcutscene_animation_stop:
     #Spawned models removal
     - run dcutscene_animation_cleanup_models def.player:<[player]>
     - flag <[player]> dcutscene_played_scene:!
+    - flag <[player]> dcutscene_bridge_instance_id:!
     - flag <[player]> dcutscene_timespot:!
+    - flag <[player]> dcutscene_cleanup_in_progress:!
 
 #========= Path movement for camera, models, and entities ========
 #This moves the camera or models across the designated path
@@ -951,6 +1098,7 @@ dcutscene_path_move:
           - case model:
             #=Preparation
             - run dcutscene_models_registry_sync def.player:<player>
+            - define instance_id <[entity].flag[modelengine_instance_id]||<[entity].uuid>>
             - define keyframes <[cutscene.keyframes.models.<[data.tick]>.<[data.uuid]>.path]>
             - foreach <[keyframes]> key:tick_id as:keyframe:
               - define time_1 <[keyframe.tick]||null>
@@ -966,6 +1114,12 @@ dcutscene_path_move:
               - define rotate_mul <[keyframe.rotate_mul]>
               - define ray_trace <[keyframe.ray_trace]>
               - define animation <[keyframe.animation]>
+              - define animation_duration <[keyframe.animation_duration_ticks]||0>
+              - define animation_params <[keyframe.animation_params]||<[keyframe.animation_parameters]||<map>>>
+              - define animation_fade_in <[keyframe.animation_fade_in]||<[animation_params.fade_in]||<[animation_params.fadeIn]||0t>>>
+              - define animation_fade_out <[keyframe.animation_fade_out]||<[animation_params.fade_out]||<[animation_params.fadeOut]||0t>>>
+              - define animation_speed <[keyframe.animation_speed]||<[animation_params.speed]||1>>
+              - define animation_loop <[keyframe.animation_loop]||<[animation_params.loop]||null>>
               - define skills <[keyframe.skills]||<list>>
               - define state <[keyframe.state]||unset>
               - define tint <[keyframe.tint]||unset>
@@ -976,7 +1130,7 @@ dcutscene_path_move:
               - define mount <[keyframe.mount]||unset>
               #Model Animation
               - if <[animation]> != false && <[animation]> != stop:
-                - run dcutscene_modelengine_animation_play def.entity:<[entity]> def.animation:<[animation]>
+                - run dcutscene_modelengine_animation_play def.entity:<[entity]> def.animation:<[animation]> def.fade_in:<[animation_fade_in]> def.fade_out:<[animation_fade_out]> def.speed:<[animation_speed]> def.loop:<[animation_loop]>
                 - if <[animation_duration].is_more_than[0]>:
                   - define stop_tick <[time_1].add[<[animation_duration]>]>
                   - flag <[entity]> dcutscene_modelengine_animation.stop_tick:<[stop_tick]>
@@ -1016,7 +1170,7 @@ dcutscene_path_move:
               #Time calculation
               - define time <[time_2].sub[<[time_1]>]||null>
               - if <[time]> == null:
-                - teleport <[entity]> <[loc_2].with_yaw[<[loc_2].yaw>]>
+                - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
                 - define stop_tick <[entity].flag[dcutscene_modelengine_animation.stop_tick]||null>
                 - if <[stop_tick].is_integer>:
                   - define remaining <[stop_tick].sub[<[time_1]>]||0>
@@ -1094,14 +1248,14 @@ dcutscene_path_move:
                             - define ray <[data].above[0.5].with_pitch[-90].ray_trace[range=60;fluids=<[ray_trace.liquid]||false>;nonsolids=<[ray_trace.passable]||false>]||null>
                             - if <[ray]> != null:
                               - define data <[ray]>
-                      - teleport <[entity]> <[data].with_pitch[0].with_yaw[<[yaw]>].with_world[<[world]>]>
+                      - execute as_server "cs_me4 move <[instance_id]> <[data].x> <[data].y> <[data].z> <[yaw]> 0"
                     - else:
-                      - teleport <[entity]> <[loc_2].with_world[<[world]>]>
+                      - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
                   - else:
-                    - teleport <[entity]> <[loc_1].with_world[<[world]>]>
+                    - execute as_server "cs_me4 move <[instance_id]> <[loc_1].x> <[loc_1].y> <[loc_1].z> <[loc_1].yaw> 0"
                   - wait 1t
               - adjust <[loc_2].with_world[<[world]>].chunk> load
-              - teleport <[entity]> <[loc_2].with_yaw[<[loc_2].yaw>].with_world[<[world]>]>
+              - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
 
           #====================== Player Model Path Move =======================
           - case player_model:
