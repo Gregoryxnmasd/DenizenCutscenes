@@ -194,6 +194,17 @@ dcutscene_animation_begin:
               - define root <entry[spawned].created_queue.determination.first>
               - if <[type]> == model:
                 - flag <[root]> modelengine_model_id:<[model_name]>
+                - flag <[root]> dcutscene_model_id:<[model_id]>
+                - flag <[player]> dcutscene_models.instances.<[model_id]>.root:<[root]>
+                - flag <[player]> dcutscene_models.instances.<[model_id]>.modelengine_id:<[model_name]>
+                - flag <[player]> dcutscene_models.instances.<[model_id]>.owner:<[player]>
+                - flag <[player]> dcutscene_models.instances.<[model_id]>.animation.current:stop
+                - flag <[player]> dcutscene_models.instances.<[model_id]>.animation.state:stop
+                - flag server dcutscene_models.instances.<[model_id]>.root:<[root]>
+                - flag server dcutscene_models.instances.<[model_id]>.modelengine_id:<[model_name]>
+                - flag server dcutscene_models.instances.<[model_id]>.owner:<[player]>
+                - flag server dcutscene_models.instances.<[model_id]>.animation.current:stop
+                - flag server dcutscene_models.instances.<[model_id]>.animation.state:stop
               - chunkload <[root].location.chunk> duration:5t
               # Track spawned model
               - flag <[player]> dcutscene_spawned_models.<[model_id]>.root:<[root]>
@@ -649,6 +660,8 @@ dcutscene_animation_stop:
           - run pmodels_remove_model def:<[model.root]>
         - case model:
           - run modelengine_delete def:<[model.root]>
+      - flag <[player]> dcutscene_models.instances.<[id]>:!
+      - flag server dcutscene_models.instances.<[id]>:!
     - flag <[player]> dcutscene_played_scene:!
     - flag <[player]> dcutscene_spawned_models:!
     - flag <[player]> dcutscene_timespot:!
@@ -865,6 +878,7 @@ dcutscene_path_move:
           #====================== Model Path Move =======================
           - case model:
             #=Preparation
+            - run dcutscene_models_registry_sync
             - define keyframes <[cutscene.keyframes.models.<[data.tick]>.<[data.uuid]>.path]>
             - foreach <[keyframes]> key:tick_id as:keyframe:
               - define time_1 <[keyframe.tick]||null>
@@ -883,13 +897,28 @@ dcutscene_path_move:
               #Model Animation
               - if <[animation]> != false && <[animation]> != stop:
                 - run modelengine_animate def:<[entity]>|<[animation]>
-                - define loop <server.flag[modelengine_data.animations_<[entity].flag[modelengine_model_id]>.<[animation]>.loop]||false>
+                - define model_name <[entity].flag[modelengine_model_id]||null>
+                - define loop <server.flag[dcutscene_models.registry.models.<[model_name]>.animations.<[animation]>.loop]||false>
                 - if <[loop]> == hold:
                   - flag <[entity]> dcutscene_model_animation_state:hold
+                  - define animation_state hold
                 - else:
                   - flag <[entity]> dcutscene_model_animation_state:!
+                  - define animation_state loop
+                - define model_id <[entity].flag[dcutscene_model_id]||null>
+                - if <[model_id]> != null:
+                  - flag <player> dcutscene_models.instances.<[model_id]>.animation.current:<[animation]>
+                  - flag <player> dcutscene_models.instances.<[model_id]>.animation.state:<[animation_state]>
+                  - flag server dcutscene_models.instances.<[model_id]>.animation.current:<[animation]>
+                  - flag server dcutscene_models.instances.<[model_id]>.animation.state:<[animation_state]>
               - else if <[animation]> == stop:
                 - run modelengine_end_animation def:<[entity]>
+                - define model_id <[entity].flag[dcutscene_model_id]||null>
+                - if <[model_id]> != null:
+                  - flag <player> dcutscene_models.instances.<[model_id]>.animation.current:stop
+                  - flag <player> dcutscene_models.instances.<[model_id]>.animation.state:stop
+                  - flag server dcutscene_models.instances.<[model_id]>.animation.current:stop
+                  - flag server dcutscene_models.instances.<[model_id]>.animation.state:stop
               #Reset position
               - if !<[entity].has_flag[dcutscene_model_animation_state]> || <[entity].flag[dcutscene_model_animation_state]> != hold:
                 - run modelengine_reset_model_position def:<[entity]>
