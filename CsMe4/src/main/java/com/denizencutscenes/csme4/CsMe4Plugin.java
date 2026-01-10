@@ -83,7 +83,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
         ActiveModel activeModel = ModelEngineAPI.createActiveModel(modelId);
         modeledEntity.addModel(activeModel);
 
-        dummy.setForceViewing(viewer, true);
+        applyVisibility(dummy, viewer.getUniqueId());
 
         instances.put(instanceId, new InstanceData(dummy, modeledEntity, activeModel, viewer.getUniqueId()));
         sender.sendMessage("Created ModelEngine instance: " + instanceId);
@@ -159,6 +159,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
         }
 
         data.dummy().setLocation(targetLocation);
+        applyVisibility(data.dummy(), data.viewerUuid());
         sender.sendMessage("Moved instance " + args[1]);
     }
 
@@ -194,6 +195,17 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
         sender.sendMessage("/cs_me4 anim_stop <instanceId> <animationId>");
         sender.sendMessage("/cs_me4 move <instanceId> [x y z]");
         sender.sendMessage("/cs_me4 remove <instanceId>");
+    }
+
+    private void applyVisibility(Dummy<?> dummy, UUID viewerUuid) {
+        Player viewer = Bukkit.getPlayer(viewerUuid);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (viewer != null && player.getUniqueId().equals(viewerUuid)) {
+                dummy.setForceViewing(player, true);
+            } else {
+                dummy.setForceHidden(player, true);
+            }
+        }
     }
 
     private record InstanceData(
