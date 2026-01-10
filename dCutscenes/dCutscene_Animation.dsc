@@ -951,6 +951,7 @@ dcutscene_path_move:
           - case model:
             #=Preparation
             - run dcutscene_models_registry_sync def.player:<player>
+            - define instance_id <[entity].flag[modelengine_instance_id]||<[entity].uuid>>
             - define keyframes <[cutscene.keyframes.models.<[data.tick]>.<[data.uuid]>.path]>
             - foreach <[keyframes]> key:tick_id as:keyframe:
               - define time_1 <[keyframe.tick]||null>
@@ -1016,7 +1017,7 @@ dcutscene_path_move:
               #Time calculation
               - define time <[time_2].sub[<[time_1]>]||null>
               - if <[time]> == null:
-                - teleport <[entity]> <[loc_2].with_yaw[<[loc_2].yaw>]>
+                - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
                 - define stop_tick <[entity].flag[dcutscene_modelengine_animation.stop_tick]||null>
                 - if <[stop_tick].is_integer>:
                   - define remaining <[stop_tick].sub[<[time_1]>]||0>
@@ -1094,14 +1095,14 @@ dcutscene_path_move:
                             - define ray <[data].above[0.5].with_pitch[-90].ray_trace[range=60;fluids=<[ray_trace.liquid]||false>;nonsolids=<[ray_trace.passable]||false>]||null>
                             - if <[ray]> != null:
                               - define data <[ray]>
-                      - teleport <[entity]> <[data].with_pitch[0].with_yaw[<[yaw]>].with_world[<[world]>]>
+                      - execute as_server "cs_me4 move <[instance_id]> <[data].x> <[data].y> <[data].z> <[yaw]> 0"
                     - else:
-                      - teleport <[entity]> <[loc_2].with_world[<[world]>]>
+                      - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
                   - else:
-                    - teleport <[entity]> <[loc_1].with_world[<[world]>]>
+                    - execute as_server "cs_me4 move <[instance_id]> <[loc_1].x> <[loc_1].y> <[loc_1].z> <[loc_1].yaw> 0"
                   - wait 1t
               - adjust <[loc_2].with_world[<[world]>].chunk> load
-              - teleport <[entity]> <[loc_2].with_yaw[<[loc_2].yaw>].with_world[<[world]>]>
+              - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
 
           #====================== Player Model Path Move =======================
           - case player_model:
