@@ -687,8 +687,8 @@ dcutscene_model_keyframe_edit:
                   - debug error "Something went wrong could not determine model ID in dcutscene_model_keyframe_edit for create_model_name"
                   - stop
                 #Model verification
-                - if <server.has_flag[modelengine_data]>:
-                  - if <server.flag[modelengine_data.model_<[arg_2]>]||null> != null:
+                - run dcutscene_models_registry_sync
+                - if <server.flag[dcutscene_models.registry.models.<[arg_2]>]||null> != null:
                     #If there is a model present remove it
                     - if <player.has_flag[dcutscene_location_editor]>:
                       - define loc_data <player.flag[dcutscene_location_editor]>
@@ -704,11 +704,8 @@ dcutscene_model_keyframe_edit:
                     - define text "After choosing your location for this model click <green>Confirm Location <gray>in the location GUI or chat <green>confirm<gray>. To re-open the location GUI do /dcutscene location."
                     - narrate "<[msg_prefix]> <gray><[text]>"
                     - inventory open d:dcutscene_inventory_location_tool
-                  - else:
-                    - define text "That model does not seem to exist."
-                    - narrate "<[msg_prefix]> <gray><[text]>"
                 - else:
-                  - define text "There is no model data available"
+                  - define text "That model does not seem to exist."
                   - narrate "<[msg_prefix]> <gray><[text]>"
 
               #-Set the model into the data and location
