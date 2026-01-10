@@ -57,3 +57,15 @@ modelengine_delete:
   - flag server dcutscene_modelengine.last_delete:<[result]>
   - if <[entity].is_spawned||false>:
     - flag <[entity]> dcutscene_modelengine.last_delete:<[result]>
+
+modelengine_reset_model_position:
+  type: task
+  debug: false
+  definitions: entity
+  script:
+  - define command "modelengine reset_position <[entity].uuid>"
+  - execute as_server <[command]> silent
+  - definemap result command:<[command]> entity:<[entity]>
+  - flag server dcutscene_modelengine.last_reset_position:<[result]>
+  - if <[entity].is_spawned||false>:
+    - flag <[entity]> dcutscene_modelengine.last_reset_position:<[result]>
