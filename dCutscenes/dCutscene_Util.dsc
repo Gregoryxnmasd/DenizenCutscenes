@@ -401,7 +401,7 @@ dcutscene_command:
                       - case player_model:
                         - run pmodels_animate def:<[root]>|<[a_2]>
                       - case model:
-                        - run modelengine_animate def:<[root]>|<[a_2]>
+                        - run dcutscene_me_animate def:<[root]>|<[a_2]>
               #Set animation for model in keyframe
               - else if <player.flag[cutscene_modify]> == set_model_animation:
                 - define type <player.flag[dcutscene_save_data.type]>

@@ -639,7 +639,7 @@ dcutscene_model_remove:
         - case player_model:
             - run pmodels_remove_model def:<[root_ent]>
         - case model:
-            - run modelengine_delete def:<[root_ent]>
+            - run dcutscene_me_delete_model def:<[root_ent]>
 
 dcutscene_model_keyframe_edit:
     type: task
@@ -658,15 +658,7 @@ dcutscene_model_keyframe_edit:
         #========= ModelEngine Modifier =========
 
         - case denizen_model:
-          #-Check if creator has ModelEngine
-          - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
-          - if <[modelengine_spawn]> == null:
-            - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
-            - define text "Could not find ModelEngine spawn script. Ensure ModelEngine 4 is installed and Denizen integration is enabled."
-            - narrate "<[msg_prefix]> <gray><[text]>"
-            - inventory close
-          - else:
-            - choose <[arg]>:
+          - choose <[arg]>:
               #-New model preparation
               - case new:
                 - run dcutscene_model_list_new def.tick:<[tick]> def.scene:<[data.name]> def.type:model
@@ -703,7 +695,7 @@ dcutscene_model_keyframe_edit:
                       - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
                     #Give location tool and spawn the model
                     - flag <player> cutscene_modify:new_model_location expire:10m
-                    - run <[modelengine_spawn]> def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
+                    - run dcutscene_me_spawn_model def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
                     - define root <entry[spawned].created_queue.determination.first>
                     #Don't reset save_data with a - definemap
                     - flag <player> dcutscene_save_data.root:<[root]>
@@ -778,11 +770,7 @@ dcutscene_model_keyframe_edit:
                         - narrate "<[msg_prefix]> <gray><[text]>"
                         - flag <player> dcutscene_save_data.data:<[root_save]>
                         - define model <[root_data.model]>
-                        - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
-                        - if <[modelengine_spawn]> == null:
-                          - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
-                          - foreach next
-                        - run <[modelengine_spawn]> def:<[model]>|<player.location>|256|<player> save:spawned
+                        - run dcutscene_me_spawn_model def:<[model]>|<player.location>|256|<player> save:spawned
                         - define root <entry[spawned].created_queue.determination.first>
                         - flag <player> dcutscene_save_data.root:<[root]>
                         - run dcutscene_location_tool_give_data def:<player.location>|<[root]>|<[root].location.yaw>|model|<[model]>
@@ -918,11 +906,7 @@ dcutscene_model_keyframe_edit:
                 - flag <player> cutscene_modify:set_new_model_location
                 - flag <player> dcutscene_save_data.data:<[root_save]>
                 - flag <player> dcutscnee_save_data.model:<[model]>
-                - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
-                - if <[modelengine_spawn]> == null:
-                  - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
-                  - stop
-                - run <[modelengine_spawn]> def:<[model]>|<player.location>|256|<player> save:spawned
+                - run dcutscene_me_spawn_model def:<[model]>|<player.location>|256|<player> save:spawned
                 - define root <entry[spawned].created_queue.determination.first>
                 - flag <player> dcutscene_save_data.root:<[root]>
                 - run dcutscene_location_tool_give_data def:<player.location>|<[root]>|<[root].location.yaw>|model|<[model]>
