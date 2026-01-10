@@ -415,6 +415,7 @@ dcutscene_command:
                     - run dcutscene_model_keyframe_edit def:player_model|animate|set_animation|<[a_2]>
                   - case model:
                     #Validate the animation
+                    - run dcutscene_models_registry_sync
                     - define model <player.flag[dcutscene_save_data.model]>
                     - define parsed <proc[dcutscene_modelengine_animation_parse].context[<[a_2]>]>
                     - define anim_name <[parsed.name]>
@@ -454,6 +455,20 @@ dcutscene_command:
               - else if <player.flag[cutscene_modify]> == change_particle:
                 - run dcutscene_animator_keyframe_edit def:particle|change_particle|<[a_2]>
 
+# Sync ModelEngine registry data to dcutscene_models
+dcutscene_models_registry_sync:
+    type: task
+    debug: false
+    script:
+    - if !<server.has_flag[modelengine_data]>:
+      - stop
+    - define registry <map>
+    - foreach <server.flag[modelengine_data].keys.filter[starts_with[model_]]||<list>> as:model_key:
+      - define model_name <[model_key].after[model_]>
+      - define anim_list <server.flag[modelengine_data.animations_<[model_name]>]||<map>>
+      - define registry.models.<[model_name]>.animations <[anim_list]>
+    - flag server dcutscene_models.registry:<[registry]>
+
 # Tab completion for list of cutscenes or animator modifiers that utilize data from the server
 dcutscene_data_list:
     type: procedure
@@ -480,6 +495,7 @@ dcutscene_data_list:
               - define anim_list <server.flag[pmodels_data.animations_player_model_template_norm]||<map>>
               - determine <[anim_list].keys||<empty>>
             - case model:
+              - run dcutscene_models_registry_sync
               - define model <[player].flag[dcutscene_save_data.model]>
               - define anim_list <server.flag[dcutscene_modelengine_animations.<[model]>]||<map>>
               - determine <[anim_list].keys||<empty>>

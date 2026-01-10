@@ -639,7 +639,7 @@ dcutscene_model_remove:
         - case player_model:
             - run pmodels_remove_model def:<[root_ent]>
         - case model:
-            - run modelengine_delete def:<[root_ent]>
+            - run dcutscene_me_delete_model def:<[root_ent]>
 
 dcutscene_model_keyframe_edit:
     type: task
@@ -658,15 +658,7 @@ dcutscene_model_keyframe_edit:
         #========= ModelEngine Modifier =========
 
         - case denizen_model:
-          #-Check if creator has ModelEngine
-          - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
-          - if <[modelengine_spawn]> == null:
-            - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
-            - define text "Could not find ModelEngine spawn script. Ensure ModelEngine 4 is installed and Denizen integration is enabled."
-            - narrate "<[msg_prefix]> <gray><[text]>"
-            - inventory close
-          - else:
-            - choose <[arg]>:
+          - choose <[arg]>:
               #-New model preparation
               - case new:
                 - run dcutscene_model_list_new def.tick:<[tick]> def.scene:<[data.name]> def.type:model
