@@ -1,11 +1,9 @@
-package com.denizencutscenes.csme4;
+package com.extracraft;
 
 import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.dummy.Dummy;
 import com.ticxo.modelengine.api.entity.ActiveModel;
 import com.ticxo.modelengine.api.entity.ModeledEntity;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -16,10 +14,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Listener {
@@ -229,18 +224,24 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
     }
 
     private void handleVisibility(CommandSender sender, String[] args) {
-        if (args.length < 3) {
-            sender.sendMessage("Usage: /cs_me4 visibility <instanceId> <visible|hidden>");
+        if (args.length < 4) {
+            sender.sendMessage("Usage: /cs_me4 visibility <viewerUUID> <cutsceneId> <visible|hidden>");
             return;
         }
 
-        InstanceData data = instances.get(args[1]);
+        UUID viewerUuid = parseUuid(sender, args[1], "viewerUUID");
+        if (viewerUuid == null) {
+            return;
+        }
+
+        String cutsceneId = args[2];
+        InstanceData data = instances.get(buildKey(viewerUuid, cutsceneId));
         if (data == null) {
-            sender.sendMessage("Unknown instance: " + args[1]);
+            sender.sendMessage("Missing instance for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
             return;
         }
 
-        String mode = args[2].toLowerCase(Locale.ROOT);
+        String mode = args[3].toLowerCase(Locale.ROOT);
         boolean hidden;
         switch (mode) {
             case "hidden":
@@ -264,7 +265,8 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
         data.setForceHidden(hidden);
         applyVisibility(data);
-        sender.sendMessage("Visibility for " + args[1] + " set to " + (hidden ? "hidden" : "visible"));
+        sender.sendMessage("Visibility for viewer " + viewerUuid + " in cutscene " + cutsceneId + " set to "
+                + (hidden ? "hidden" : "visible") + ".");
     }
 
     private void handleRemove(CommandSender sender, String[] args) {
@@ -334,6 +336,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
         sender.sendMessage("/cs_me4 anim_play <viewerUUID> <cutsceneId> <animationId>");
         sender.sendMessage("/cs_me4 anim_stop <viewerUUID> <cutsceneId> [animationId]");
         sender.sendMessage("/cs_me4 move <viewerUUID> <cutsceneId> <x> <y> <z> <yaw> <pitch>");
+        sender.sendMessage("/cs_me4 visibility <viewerUUID> <cutsceneId> <visible|hidden>");
         sender.sendMessage("/cs_me4 remove <viewerUUID> <cutsceneId>");
         sender.sendMessage("/cs_me4 cleanup_viewer <viewerUUID>");
     }
@@ -362,12 +365,54 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
         }
     }
 
-    private record InstanceData(
-            Dummy<?> dummy,
-            ModeledEntity modeledEntity,
-            ActiveModel activeModel,
-            UUID viewerUuid,
-            String cutsceneId
-    ) {
+    private static final class InstanceData {
+        private final Dummy<?> dummy;
+        private final ModeledEntity modeledEntity;
+        private final ActiveModel activeModel;
+        private final UUID viewerUuid;
+        private final String cutsceneId;
+        private boolean forceHidden;
+
+        private InstanceData(
+                Dummy<?> dummy,
+                ModeledEntity modeledEntity,
+                ActiveModel activeModel,
+                UUID viewerUuid,
+                String cutsceneId
+        ) {
+            this.dummy = dummy;
+            this.modeledEntity = modeledEntity;
+            this.activeModel = activeModel;
+            this.viewerUuid = viewerUuid;
+            this.cutsceneId = cutsceneId;
+        }
+
+        private Dummy<?> dummy() {
+            return dummy;
+        }
+
+        private ModeledEntity modeledEntity() {
+            return modeledEntity;
+        }
+
+        private ActiveModel activeModel() {
+            return activeModel;
+        }
+
+        private UUID viewerUuid() {
+            return viewerUuid;
+        }
+
+        private String cutsceneId() {
+            return cutsceneId;
+        }
+
+        private boolean forceHidden() {
+            return forceHidden;
+        }
+
+        private void setForceHidden(boolean forceHidden) {
+            this.forceHidden = forceHidden;
+        }
     }
 }
