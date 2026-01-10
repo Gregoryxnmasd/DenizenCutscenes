@@ -687,10 +687,12 @@ dcutscene_model_keyframe_edit:
                   - debug error "Something went wrong could not determine model ID in dcutscene_model_keyframe_edit for create_model_name"
                   - stop
                 #Model verification
-                - if <server.has_flag[dcutscene_modelengine_models]> && <server.flag[dcutscene_modelengine_models.<[arg_2]>]||null> == null:
-                  - define text "That model does not seem to exist."
+                - define model_index <proc[dcutscene_model_index]>
+                - if <[model_index].is_empty>:
+                  - define text "There is no model data available"
                   - narrate "<[msg_prefix]> <gray><[text]>"
-                - else:
+                  - stop
+                - if <[model_index].contains[<[arg_2]>]>:
                   #If there is a model present remove it
                   - if <player.has_flag[dcutscene_location_editor]>:
                     - define loc_data <player.flag[dcutscene_location_editor]>
@@ -699,7 +701,6 @@ dcutscene_model_keyframe_edit:
                   - flag <player> cutscene_modify:new_model_location expire:10m
                   - run <[modelengine_spawn]> def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
                   - define root <entry[spawned].created_queue.determination.first>
-                  - flag server dcutscene_modelengine_models.<[arg_2]>:true
                   #Don't reset save_data with a - definemap
                   - flag <player> dcutscene_save_data.root:<[root]>
                   - flag <player> dcutscene_save_data.model:<[arg_2]>
@@ -707,6 +708,9 @@ dcutscene_model_keyframe_edit:
                   - define text "After choosing your location for this model click <green>Confirm Location <gray>in the location GUI or chat <green>confirm<gray>. To re-open the location GUI do /dcutscene location."
                   - narrate "<[msg_prefix]> <gray><[text]>"
                   - inventory open d:dcutscene_inventory_location_tool
+                - else:
+                  - define text "That model does not seem to exist."
+                  - narrate "<[msg_prefix]> <gray><[text]>"
 
               #-Set the model into the data and location
               - case location_set_and_create_model:

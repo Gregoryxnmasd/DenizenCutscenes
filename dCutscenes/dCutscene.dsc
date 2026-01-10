@@ -100,6 +100,10 @@ dcutscenes_config:
       #If you don't plan on making contributions keep this false.
       cutscene_tool_debugger_mode: false
 
+      #List of available ModelEngine model IDs for validation/tab completion.
+      #This is used to seed server.flag[dcutscene_me_models] if it is not already set.
+      dcutscene_me_models: []
+
 #==== API Usage ====
 
 #==Run Tasks
