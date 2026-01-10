@@ -157,11 +157,8 @@ dcutscene_animation_begin:
               - choose <[type]>:
                 #=Model
                 - case model:
-                  - define script <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
                   - define model_name <[model_data.model]>
-                  - if <[script]> == null:
-                    - debug error "Could not spawn model <[model_name]>. Is ModelEngine 4 installed and configured?"
-                    - foreach next
+                  - define script dcutscene_me_spawn_model
                   - define defs <list[<[model_name]>|<[spawn_loc]>|256|<[player]>]>
                 #=Player Model
                 - case player_model:
@@ -921,7 +918,7 @@ dcutscene_path_move:
                   - flag server dcutscene_models.instances.<[model_id]>.animation.state:stop
               #Reset position
               - if !<[entity].has_flag[dcutscene_model_animation_state]> || <[entity].flag[dcutscene_model_animation_state]> != hold:
-                - run modelengine_reset_model_position def:<[entity]>
+            - run dcutscene_me_reset_position def:<[entity]>
               #After
               - foreach <[keyframes]> key:aft_tick_id as:aft_keyframe:
                 - if <[aft_tick_id].is_more_than[<[time_1]>]>:
