@@ -695,8 +695,7 @@ dcutscene_model_keyframe_edit:
                 - if <[model_index].is_empty> || <[model_index].contains[<[arg_2]>]>:
                   #If there is a model present remove it
                   - if <player.has_flag[dcutscene_location_editor]>:
-                    - define loc_data <player.flag[dcutscene_location_editor]>
-                    - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                    - run dcutscene_model_remove def:<player.flag[dcutscene_location_editor.root_type]>|<player.flag[dcutscene_location_editor.root_ent]>
                   #Give location tool and spawn the model
                   - flag <player> cutscene_modify:new_model_location expire:10m
                   - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
@@ -751,8 +750,7 @@ dcutscene_model_keyframe_edit:
                 - narrate "<[msg_prefix]> <gray><[text]>"
                 #Remove created player model
                 - if <player.has_flag[dcutscene_location_editor]>:
-                  - define loc_data <player.flag[dcutscene_location_editor]>
-                  - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                  - run dcutscene_model_remove def:<player.flag[dcutscene_location_editor.root_type]>|<player.flag[dcutscene_location_editor.root_ent]>
                 - run dcutscene_location_tool_return_inv
                 - flag <player> dcutscene_location_editor:!
                 - inventory open d:dcutscene_inventory_sub_keyframe
@@ -776,8 +774,7 @@ dcutscene_model_keyframe_edit:
                         - flag <player> cutscene_modify:new_model_keyframe_point
                         #If there is a present player model remove it
                         - if <player.has_flag[dcutscene_location_editor]>:
-                          - define loc_data <player.flag[dcutscene_location_editor]>
-                          - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                          - run dcutscene_model_remove def:<player.flag[dcutscene_location_editor.root_type]>|<player.flag[dcutscene_location_editor.root_ent]>
                         - define text "After choosing your location for this model click <green>Confirm Location <gray>in the location GUI or chat <green>confirm<gray>. To re-open the location GUI do /dcutscene location."
                         - narrate "<[msg_prefix]> <gray><[text]>"
                         - flag <player> dcutscene_save_data.data:<[root_save]>
@@ -825,8 +822,7 @@ dcutscene_model_keyframe_edit:
                     - flag <player> cutscene_data:<server.flag[dcutscenes.<[data.name]>]>
                     #Remove created player model
                     - if <player.has_flag[dcutscene_location_editor]>:
-                      - define loc_data <player.flag[dcutscene_location_editor]>
-                      - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                      - run dcutscene_model_remove def:<player.flag[dcutscene_location_editor.root_type]>|<player.flag[dcutscene_location_editor.root_ent]>
                     - run dcutscene_location_tool_return_inv
                     #Sort ticks by time
                     - ~run dcutscene_sort_data def.cutscene:<[data.name]>
@@ -908,8 +904,7 @@ dcutscene_model_keyframe_edit:
               - case change_location_prep:
                 #If there is a present player model remove it
                 - if <player.has_flag[dcutscene_location_editor]>:
-                  - define loc_data <player.flag[dcutscene_location_editor]>
-                  - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                  - run dcutscene_model_remove def:<player.flag[dcutscene_location_editor.root_type]>|<player.flag[dcutscene_location_editor.root_ent]>
                 - define model_data  <[data.keyframes.models]>
                 - define root_save <[model_data.<[tick]>.<[uuid]>.root]||none>
                 - if <[root_save]> == none:
@@ -954,8 +949,7 @@ dcutscene_model_keyframe_edit:
                 - inventory open d:dcutscene_inventory_keyframe_modify_model
                 #If there is a model present remove it
                 - if <player.has_flag[dcutscene_location_editor]>:
-                  - define loc_data <player.flag[dcutscene_location_editor]>
-                  - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                  - run dcutscene_model_remove def:<player.flag[dcutscene_location_editor.root_type]>|<player.flag[dcutscene_location_editor.root_ent]>
                 - run dcutscene_location_tool_return_inv
                 - flag <player> dcutscene_location_editor:!
 
@@ -1352,8 +1346,7 @@ dcutscene_model_keyframe_edit:
                       - stop
                   #If there is a model present remove it
                   - if <player.has_flag[dcutscene_location_editor]>:
-                    - define loc_data <player.flag[dcutscene_location_editor]>
-                    - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                    - run dcutscene_model_remove def:<player.flag[dcutscene_location_editor.root_type]>|<player.flag[dcutscene_location_editor.root_ent]>
                   - flag <player> cutscene_modify:new_player_model_location
                   #Save data for continuous data input in modifiers
                   - flag <player> dcutscene_save_data.id:<[arg_3]>
@@ -1389,8 +1382,7 @@ dcutscene_model_keyframe_edit:
                   - narrate "<[msg_prefix]> <gray><[text]>"
                   #Remove created player model
                   - if <player.has_flag[dcutscene_location_editor]>:
-                    - define loc_data <player.flag[dcutscene_location_editor]>
-                    - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                    - run dcutscene_model_remove def:<player.flag[dcutscene_location_editor.root_type]>|<player.flag[dcutscene_location_editor.root_ent]>
                   - run dcutscene_location_tool_return_inv
                   - flag <player> dcutscene_location_editor:!
                   - inventory open d:dcutscene_inventory_sub_keyframe
@@ -1416,8 +1408,7 @@ dcutscene_model_keyframe_edit:
                         - flag <player> cutscene_modify:new_player_model_keyframe_point
                         #If there is a present player model remove it
                         - if <player.has_flag[dcutscene_location_editor]>:
-                          - define loc_data <player.flag[dcutscene_location_editor]>
-                          - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                          - run dcutscene_model_remove def:<player.flag[dcutscene_location_editor.root_type]>|<player.flag[dcutscene_location_editor.root_ent]>
                         - define text "After choosing your location for this player model click <green>Confirm Location <gray>in the location GUI or chat <green>confirm<gray>. To re-open the location GUI do /dcutscene location."
                         - narrate "<[msg_prefix]> <gray><[text]>"
                         - flag <player> dcutscene_save_data.data:<[root_save]>
@@ -1464,8 +1455,7 @@ dcutscene_model_keyframe_edit:
                     - run dcutscene_sort_data def.cutscene:<[data.name]>
                     #Remove created player model
                     - if <player.has_flag[dcutscene_location_editor]>:
-                      - define loc_data <player.flag[dcutscene_location_editor]>
-                      - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                      - run dcutscene_model_remove def:<player.flag[dcutscene_location_editor.root_type]>|<player.flag[dcutscene_location_editor.root_ent]>
                     - run dcutscene_location_tool_return_inv
                     - flag <player> dcutscene_location_editor:!
                     - inventory open d:dcutscene_inventory_sub_keyframe
@@ -1521,8 +1511,7 @@ dcutscene_model_keyframe_edit:
                   - case new_location_prepare:
                     #If there is a present player model remove it
                     - if <player.has_flag[dcutscene_location_editor]>:
-                      - define loc_data <player.flag[dcutscene_location_editor]>
-                      - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                      - run dcutscene_model_remove def:<player.flag[dcutscene_location_editor.root_type]>|<player.flag[dcutscene_location_editor.root_ent]>
                     - define model_data  <[data.keyframes.models]>
                     - define root_save <[model_data.<[tick]>.<[uuid]>.root]||none>
                     - if <[root_save]> == none:
