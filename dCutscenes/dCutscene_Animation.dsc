@@ -73,11 +73,15 @@ dcutscene_modelengine_animation_play:
     - define model_id <[entity].flag[modelengine_model_id]||null>
     - define owner <[entity].flag[dcutscene_model_owner]||<player||null>>
     - define scene_uuid <[entity].flag[dcutscene_scene_uuid]||<[owner].flag[dcutscene_played_scene.uuid]||null>>
+    - define instance_id <[entity].flag[cs_instance_id]||null>
     - if <[model_id]> != null && <[owner]> != null:
       - define scope <[scene_uuid].if_null[editor]>
       - flag <[owner]> dcutscene_modelengine_models.<[scope]>.<[model_id]>:true
       - flag <[owner]> dcutscene_modelengine_animations.<[scope]>.<[model_id]>.<[parsed.name]>:true
-    - execute as_server "modelengine animation play <[entity].uuid> <[parsed.name]> <[mode]>"
+    - if <[instance_id]> != null:
+      - execute as_server "modelengine animation play <[entity].uuid> <[parsed.name]> <[mode]> <[instance_id]>"
+    - else:
+      - execute as_server "modelengine animation play <[entity].uuid> <[parsed.name]> <[mode]>"
     - flag <[entity]> dcutscene_modelengine_animation.name:<[parsed.name]>
     - flag <[entity]> dcutscene_modelengine_animation.mode:<[mode]>
     - flag <[entity]> dcutscene_modelengine_animation.state:playing
@@ -93,7 +97,11 @@ dcutscene_modelengine_animation_stop:
     script:
     - if <[entity]> == null:
       - stop
-    - execute as_server "modelengine animation stop <[entity].uuid>"
+    - define instance_id <[entity].flag[cs_instance_id]||null>
+    - if <[instance_id]> != null:
+      - execute as_server "modelengine animation stop <[entity].uuid> <[instance_id]>"
+    - else:
+      - execute as_server "modelengine animation stop <[entity].uuid>"
     - flag <[entity]> dcutscene_modelengine_animation.state:stopped
     - flag <[entity]> dcutscene_modelengine_animation.name:!
     - flag <[entity]> dcutscene_modelengine_animation.mode:!
@@ -132,6 +140,9 @@ dcutscene_animation_begin:
       - define scene_uuid <util.random_uuid>
       - definemap scene_data name:<[cutscene.name]> uuid:<[scene_uuid]>
       - flag <[player]> dcutscene_played_scene:<[scene_data]>
+      # Instance IDs
+      - define instance_id "<[cutscene.name]>_<[player].uuid>_<util.time_now.format[yyyyMMddHHmmssSSS]>"
+      - flag <[player]> cs_instance_id:<[instance_id]>
       # World
       - define world <world[<[world]||<[cutscene.world].first>>]||null>
       - if <[world]> == null:
@@ -265,6 +276,9 @@ dcutscene_animation_begin:
                 - flag <[root]> dcutscene_model_id:<[model_id]>
                 - flag <[root]> dcutscene_model_owner:<[player]>
                 - flag <[root]> dcutscene_scene_uuid:<[scene_uuid]>
+                - define actor_instance_id "<[player].flag[cs_instance_id]>_<[model_id]>"
+                - flag <[player]> cs_actor_<[model_id]>_instance:<[actor_instance_id]>
+                - flag <[root]> cs_instance_id:<[actor_instance_id]>
                 - flag <[player]> dcutscene_models.instances.<[scene_uuid]>.<[model_id]>.root:<[root]>
                 - flag <[player]> dcutscene_models.instances.<[scene_uuid]>.<[model_id]>.modelengine_id:<[model_name]>
                 - flag <[player]> dcutscene_models.instances.<[scene_uuid]>.<[model_id]>.owner:<[player]>
@@ -700,7 +714,11 @@ dcutscene_animation_cleanup_models:
         - case player_model:
           - run pmodels_remove_model def:<[model.root]>
         - case model:
-          - run modelengine_delete def:<[model.root]>
+          - define instance_id <[model.root].flag[cs_instance_id]||null>
+          - if <[instance_id]> != null:
+            - execute as_server "modelengine delete <[model.root].uuid> <[instance_id]>" silent
+          - else:
+            - run modelengine_delete def:<[model.root]>
     - flag <[player]> dcutscene_spawned_models:!
 
 #======== Cutscene Animation Stop ============

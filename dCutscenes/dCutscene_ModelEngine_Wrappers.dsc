@@ -42,9 +42,13 @@ modelengine_spawn_model:
 modelengine_animate:
   type: task
   debug: true
-  definitions: entity|animation
+  definitions: entity|animation|instance_id
   script:
-  - define command "modelengine animation play <[entity].uuid> <[animation]>"
+  - define instance_id <[instance_id]||<[entity].flag[cs_instance_id]||null>>
+  - if <[instance_id]> != null:
+    - define command "modelengine animation play <[entity].uuid> <[animation]> <[instance_id]>"
+  - else:
+    - define command "modelengine animation play <[entity].uuid> <[animation]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]> animation:<[animation]>
   - flag server dcutscene_modelengine.last_animation_play:<[result]>
@@ -54,9 +58,13 @@ modelengine_animate:
 modelengine_end_animation:
   type: task
   debug: true
-  definitions: entity
+  definitions: entity|instance_id
   script:
-  - define command "modelengine animation stop <[entity].uuid>"
+  - define instance_id <[instance_id]||<[entity].flag[cs_instance_id]||null>>
+  - if <[instance_id]> != null:
+    - define command "modelengine animation stop <[entity].uuid> <[instance_id]>"
+  - else:
+    - define command "modelengine animation stop <[entity].uuid>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]>
   - flag server dcutscene_modelengine.last_animation_stop:<[result]>
@@ -66,9 +74,13 @@ modelengine_end_animation:
 modelengine_delete:
   type: task
   debug: true
-  definitions: entity
+  definitions: entity|instance_id
   script:
-  - define command "modelengine delete <[entity].uuid>"
+  - define instance_id <[instance_id]||<[entity].flag[cs_instance_id]||null>>
+  - if <[instance_id]> != null:
+    - define command "modelengine delete <[entity].uuid> <[instance_id]>"
+  - else:
+    - define command "modelengine delete <[entity].uuid>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]>
   - flag server dcutscene_modelengine.last_delete:<[result]>
@@ -78,9 +90,13 @@ modelengine_delete:
 modelengine_reset_model_position:
   type: task
   debug: false
-  definitions: entity
+  definitions: entity|instance_id
   script:
-  - define command "modelengine reset_position <[entity].uuid>"
+  - define instance_id <[instance_id]||<[entity].flag[cs_instance_id]||null>>
+  - if <[instance_id]> != null:
+    - define command "modelengine reset_position <[entity].uuid> <[instance_id]>"
+  - else:
+    - define command "modelengine reset_position <[entity].uuid>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]>
   - flag server dcutscene_modelengine.last_reset_position:<[result]>
