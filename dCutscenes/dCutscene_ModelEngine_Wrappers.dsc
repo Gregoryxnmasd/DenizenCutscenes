@@ -14,7 +14,7 @@ modelengine_spawn_model:
   - define scan_radius 16
   - define max_attempts 10
   - define wait_ticks 2t
-  - define command "modelengine spawn <[model_name]> <[location].x> <[location].y> <[location].z> <[location].world.name> <[location].yaw> <[location].pitch> <[tracking_range]> <[viewer_name]>"
+  - define command "cs_me4 create <[model_name]> <[location].x> <[location].y> <[location].z> <[location].world.name> <[location].yaw> <[location].pitch> <[tracking_range]> <[viewer_name]>"
   - define before_entities <[location].find_entities.within[<[scan_radius]>]||<list>>
   - execute as_server <[command]> silent
   - define spawned_entity null
@@ -44,11 +44,7 @@ modelengine_animate:
   debug: true
   definitions: entity|animation|instance_id
   script:
-  - define instance_id <[instance_id]||<[entity].flag[cs_instance_id]||null>>
-  - if <[instance_id]> != null:
-    - define command "modelengine animation play <[entity].uuid> <[animation]> <[instance_id]>"
-  - else:
-    - define command "modelengine animation play <[entity].uuid> <[animation]>"
+  - define command "cs_me4 anim_play <[entity].uuid> <[animation]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]> animation:<[animation]>
   - flag server dcutscene_modelengine.last_animation_play:<[result]>
@@ -60,11 +56,7 @@ modelengine_end_animation:
   debug: true
   definitions: entity|instance_id
   script:
-  - define instance_id <[instance_id]||<[entity].flag[cs_instance_id]||null>>
-  - if <[instance_id]> != null:
-    - define command "modelengine animation stop <[entity].uuid> <[instance_id]>"
-  - else:
-    - define command "modelengine animation stop <[entity].uuid>"
+  - define command "cs_me4 anim_stop <[entity].uuid>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]>
   - flag server dcutscene_modelengine.last_animation_stop:<[result]>
@@ -76,11 +68,7 @@ modelengine_delete:
   debug: true
   definitions: entity|instance_id
   script:
-  - define instance_id <[instance_id]||<[entity].flag[cs_instance_id]||null>>
-  - if <[instance_id]> != null:
-    - define command "modelengine delete <[entity].uuid> <[instance_id]>"
-  - else:
-    - define command "modelengine delete <[entity].uuid>"
+  - define command "cs_me4 remove <[entity].uuid>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]>
   - flag server dcutscene_modelengine.last_delete:<[result]>
@@ -92,11 +80,7 @@ modelengine_reset_model_position:
   debug: false
   definitions: entity|instance_id
   script:
-  - define instance_id <[instance_id]||<[entity].flag[cs_instance_id]||null>>
-  - if <[instance_id]> != null:
-    - define command "modelengine reset_position <[entity].uuid> <[instance_id]>"
-  - else:
-    - define command "modelengine reset_position <[entity].uuid>"
+  - define command "cs_me4 move <[entity].uuid> reset_position"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]>
   - flag server dcutscene_modelengine.last_reset_position:<[result]>
@@ -108,7 +92,7 @@ modelengine_skill:
   debug: true
   definitions: entity|skill
   script:
-  - define command "modelengine skill <[entity].uuid> <[skill]>"
+  - define command "cs_me4 skill <[entity].uuid> <[skill]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]> skill:<[skill]>
   - flag server dcutscene_modelengine.last_skill:<[result]>
@@ -120,7 +104,7 @@ modelengine_state:
   debug: true
   definitions: entity|state
   script:
-  - define command "modelengine state <[entity].uuid> <[state]>"
+  - define command "cs_me4 state <[entity].uuid> <[state]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]> state:<[state]>
   - flag server dcutscene_modelengine.last_state:<[result]>
@@ -132,7 +116,7 @@ modelengine_tint:
   debug: true
   definitions: entity|tint
   script:
-  - define command "modelengine tint <[entity].uuid> <[tint]>"
+  - define command "cs_me4 tint <[entity].uuid> <[tint]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]> tint:<[tint]>
   - flag server dcutscene_modelengine.last_tint:<[result]>
@@ -144,7 +128,7 @@ modelengine_visibility:
   debug: true
   definitions: entity|visibility
   script:
-  - define command "modelengine visibility <[entity].uuid> <[visibility]>"
+  - define command "cs_me4 visibility <[entity].uuid> <[visibility]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]> visibility:<[visibility]>
   - flag server dcutscene_modelengine.last_visibility:<[result]>
@@ -156,7 +140,7 @@ modelengine_bone:
   debug: true
   definitions: entity|args
   script:
-  - define command "modelengine bone <[entity].uuid> <[args]>"
+  - define command "cs_me4 bone <[entity].uuid> <[args]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]> args:<[args]>
   - flag server dcutscene_modelengine.last_bone:<[result]>
@@ -168,7 +152,7 @@ modelengine_limb:
   debug: true
   definitions: entity|args
   script:
-  - define command "modelengine limb <[entity].uuid> <[args]>"
+  - define command "cs_me4 limb <[entity].uuid> <[args]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]> args:<[args]>
   - flag server dcutscene_modelengine.last_limb:<[result]>
@@ -180,7 +164,7 @@ modelengine_hitbox:
   debug: true
   definitions: entity|args
   script:
-  - define command "modelengine hitbox <[entity].uuid> <[args]>"
+  - define command "cs_me4 hitbox <[entity].uuid> <[args]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]> args:<[args]>
   - flag server dcutscene_modelengine.last_hitbox:<[result]>
@@ -192,7 +176,7 @@ modelengine_mount:
   debug: true
   definitions: entity|mount
   script:
-  - define command "modelengine mount <[entity].uuid> <[mount]>"
+  - define command "cs_me4 mount <[entity].uuid> <[mount]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]> mount:<[mount]>
   - flag server dcutscene_modelengine.last_mount:<[result]>
