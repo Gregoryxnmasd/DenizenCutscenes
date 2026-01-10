@@ -19,7 +19,7 @@ dcutscene_location_tool_events:
                 - run pmodels_remove_model def:<[root_ent]>
             - case model:
               - if <[root_ent].is_spawned>:
-                - run modelengine_delete def:<[root_ent]>
+                - run dcutscene_me_delete_model def:<[root_ent]>
         - run dcutscene_location_tool_return_inv
       after player clicks dcutscene_location_tool_item in dcutscene_inventory_location_tool:
       - run dcutscene_location_toolset_inv
@@ -36,7 +36,7 @@ dcutscene_location_tool_events:
               - case player_model:
                 - run pmodels_end_animation def:<[root_ent]>
               - case model:
-                - run modelengine_end_animation def:<[root_ent]>
+                - run dcutscene_me_stop_animation def:<[root_ent]>
           - run dcutscene_location_ray_trace_update
       after player right clicks entity with:dcutscene_loc_ray_trace:
       - ratelimit <player> 2t
@@ -49,7 +49,7 @@ dcutscene_location_tool_events:
               - case player_model:
                 - run pmodels_end_animation def:<[root_ent]>
               - case model:
-                - run modelengine_end_animation def:<[root_ent]>
+                - run dcutscene_me_stop_animation def:<[root_ent]>
           - run dcutscene_location_ray_trace_update
       after player right clicks block with:dcutscene_loc_ray_trace_dist_add:
       - run dcutscene_location_edit_ray_trace_add_dist
@@ -248,7 +248,7 @@ dcutscene_location_edit_ray_trace:
             - case player_model:
               - run pmodels_reset_model_position def:<[root]>
             - case model:
-              - run modelengine_reset_model_position def:<[root]>
+              - run dcutscene_me_reset_position def:<[root]>
         - else:
           - flag <player> dcutscene_location_editor.location:<[root].location>
 
@@ -266,11 +266,7 @@ dcutscene_location_tool_model_spawner:
         - flag <player> dcutscene_location_editor.root_ent:<[root]>
       - case model:
         - define model <[attribute]>
-        - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
-        - if <[modelengine_spawn]> == null:
-          - debug error "Could not find ModelEngine spawn script in dcutscene_location_tool_model_spawner"
-          - stop
-        - run <[modelengine_spawn]> def:<[model]>|<[loc]>|256|<player> save:spawned
+        - run dcutscene_me_spawn_model def:<[model]>|<[loc]>|256|<player> save:spawned
         - define root <entry[spawned].created_queue.determination.first>
     - flag <player> dcutscene_location_editor.root_ent:<[root]>
 
