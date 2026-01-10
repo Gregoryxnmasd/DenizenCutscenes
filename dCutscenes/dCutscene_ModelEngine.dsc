@@ -21,6 +21,12 @@ dcutscene_me_spawn_model:
       - stop
     - run <[modelengine_spawn]> def.model_name:<[model_name]> def.location:<[location]> def.tracking_range:<[tracking_range]> def.viewer:<[fake_to]> def.fake_to:<[fake_to]> save:spawned
     - define root <entry[spawned].determination.first||<entry[spawned].determination||<entry[spawned].spawned_entity||<entry[spawned].created_queue.determination.first||null>>>>
+    - if <[root]> == null:
+      - define fallback_entity <server.flag[dcutscene_modelengine.last_spawn.entity]>
+      - if <[fake_to].is_player||false>:
+        - define fallback_entity <[fake_to].flag[dcutscene_modelengine.last_spawn.entity]||<[fallback_entity]>>
+      - if <[fallback_entity].is_spawned||false> && <[fallback_entity].flag[modelengine_model_id].equals_case_sensitive[<[model_name]>]>:
+        - define root <[fallback_entity]>
     - if <[root]> != null:
       - flag <[root]> modelengine_model_id:<[model_name]>
     - determine <[root]>
