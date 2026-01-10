@@ -100,6 +100,76 @@ dcutscene_modelengine_animation_stop:
     - flag <[entity]> dcutscene_modelengine_animation.stop_tick:!
     - flag <[entity]> dcutscene_model_animation_state:!
 
+#========= Bridge Validation Helpers =========
+dcutscene_bridge_plugin_enabled:
+    type: procedure
+    debug: true
+    script:
+    - define plugin_name <script[dcutscenes_config].data_key[config].get[cutscene_bridge_plugin]||null>
+    - if <[plugin_name]> == null || <[plugin_name].trim.is_empty>:
+      - determine false
+    - determine <server.has_plugin[<[plugin_name]>]||false>
+
+dcutscene_bridge_model_registry:
+    type: procedure
+    debug: true
+    script:
+    - if <server.has_flag[modelengine_data]>:
+      - define me_models <server.flag[modelengine_data].keys.filter[starts_with[model_]].parse_tag[<[parse_value].after[model_]>]||<list>>
+      - determine <[me_models]||<list>>
+    - define config_models <script[dcutscenes_config].data_key[config].get[dcutscene_me_models].if_null[<list>]>
+    - determine <[config_models]||<list>>
+
+dcutscene_bridge_validate_scene_models:
+    type: procedure
+    debug: true
+    definitions: models
+    script:
+    - if <[models]> == null:
+      - determine <map[valid:true;invalid:<list>]>
+    - define registry <proc[dcutscene_bridge_model_registry]>
+    - define invalid <list>
+    - define has_modelengine false
+    - foreach <[models]> key:tick as:model:
+      - define model_list <[model.model_list]||<list>>
+      - foreach <[model_list]> as:model_uuid:
+        - define model_data <[model.<[model_uuid]>]||null>
+        - if <[model_data]> == null:
+          - foreach next
+        - if <[model_data.type]||none> != model:
+          - foreach next
+        - define has_modelengine true
+        - define model_name <[model_data.model]||null>
+        - if <[registry].is_empty>:
+          - define invalid:->:<[model_name]||unknown>
+          - foreach next
+        - if <[model_name]> == null || !<[registry].contains[<[model_name]>]>:
+          - define invalid:->:<[model_name]||unknown>
+    - if !<[has_modelengine]>:
+      - determine <map[valid:true;invalid:<list>]>
+    - determine <map[valid:<[invalid].is_empty>;invalid:<[invalid].deduplicate>]>
+
+dcutscene_bridge_command:
+    type: task
+    debug: true
+    definitions: command|player|scene_uuid|allow_cleanup
+    script:
+    - define allow_cleanup <[allow_cleanup].if_null[true]>
+    - if <[player].is_player||false> && <[player].has_flag[dcutscene_cleanup_in_progress]>:
+      - define allow_cleanup false
+    - execute as_server "<[command]>" save:bridge_command
+    - define result_text <entry[bridge_command].result||"">
+    - define result_lower <[result_text].to_lowercase>
+    - define success <entry[bridge_command].success||false>
+    - define failed <[success].not>
+    - if <[result_lower].contains[missing instance]> || <[result_lower].contains[viewer offline]>:
+      - define failed true
+    - if <[failed]>:
+      - debug error "Bridge command failed for cutscene <[scene_uuid]>: <[command]> -> <[result_text]>"
+      - if <[allow_cleanup]> && <[player].is_player||false> && <[player].flag[dcutscene_played_scene.uuid]||null> == <[scene_uuid]>:
+        - run dcutscene_animation_stop def.player:<[player]>
+      - stop
+
 #========= Cutscene Animator Tasks and Procedures =========
 # Start the cutscene
 dcutscene_animation_begin:
@@ -128,10 +198,21 @@ dcutscene_animation_begin:
         - debug error "Length of cutscene could not be found for scene <[scene]>"
         - stop
       #=Cutscene Setup
+      # Bridge validation
+      - if !<proc[dcutscene_bridge_plugin_enabled]>:
+        - define bridge_plugin <script[dcutscenes_config].data_key[config].get[cutscene_bridge_plugin]||unknown>
+        - debug error "Bridge plugin <[bridge_plugin]> is not enabled. Cannot start cutscene <[scene]>."
+        - stop
       # Scene UUID
       - define scene_uuid <util.random_uuid>
+      - define models <[keyframes.models]||null>
+      - define model_validation <proc[dcutscene_bridge_validate_scene_models].context[<[models]>]>
+      - if !<[model_validation.valid]||false>:
+        - debug error "Cutscene <[scene]> contains invalid ModelEngine model IDs: <[model_validation.invalid]||<list>>"
+        - stop
       - definemap scene_data name:<[cutscene.name]> uuid:<[scene_uuid]>
       - flag <[player]> dcutscene_played_scene:<[scene_data]>
+      - flag <[player]> dcutscene_bridge_instance_id:<[scene_uuid]>
       # World
       - define world <world[<[world]||<[cutscene.world].first>>]||null>
       - if <[world]> == null:
@@ -152,7 +233,7 @@ dcutscene_animation_begin:
       - if !<[origin].exists>:
         - define origin <[settings.origin]||false>
       # Models in keyframes
-      - define models <[keyframes.models]||null>
+      - define models <[models]||null>
       # Elements in keyframe
       - define elements <[keyframes.elements]||null>
       # Play another scene in keyframe
@@ -710,6 +791,11 @@ dcutscene_animation_stop:
     definitions: player
     script:
     - define player <[player]||<player>>
+    - flag <[player]> dcutscene_cleanup_in_progress:true
+    - define bridge_command <script[dcutscenes_config].data_key[config].get[cutscene_bridge_command]||cs_me4>
+    - define bridge_instance <[player].flag[dcutscene_bridge_instance_id]||null>
+    - if <[bridge_instance]> != null:
+      - run dcutscene_bridge_command def.command:"<[bridge_command]> remove <[bridge_instance]>" def.player:<[player]> def.scene_uuid:<[bridge_instance]>
     - inventory swap d:<[player].inventory> o:<[player].flag[dcutscene_played_scene_inv].if_null[<player.inventory>]>
     - cast INVISIBILITY remove
     - adjust <[player]> stop_sound
@@ -736,7 +822,9 @@ dcutscene_animation_stop:
     #Spawned models removal
     - run dcutscene_animation_cleanup_models def.player:<[player]>
     - flag <[player]> dcutscene_played_scene:!
+    - flag <[player]> dcutscene_bridge_instance_id:!
     - flag <[player]> dcutscene_timespot:!
+    - flag <[player]> dcutscene_cleanup_in_progress:!
 
 #========= Path movement for camera, models, and entities ========
 #This moves the camera or models across the designated path
