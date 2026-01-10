@@ -476,6 +476,11 @@ dcutscene_model_index:
     script:
     - define model_index <server.flag[dcutscene_me_models]||null>
     - if <[model_index]> == null:
+      - if <server.has_flag[modelengine_data]>:
+        - define me_models <server.flag[modelengine_data].keys.filter[starts_with[model_]].parse_tag[<[parse_value].after[model_]>]||<list>>
+        - if !<[me_models].is_empty>:
+          - flag server dcutscene_me_models:<[me_models]>
+          - determine <[me_models]>
       - define config_models <script[dcutscenes_config].data_key[config].get[dcutscene_me_models].if_null[<list>]>
       - if <[config_models].is_empty>:
         - determine <list>
