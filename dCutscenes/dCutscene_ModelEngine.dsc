@@ -65,7 +65,7 @@ dcutscene_me_reset_position:
     definitions: entity
     script:
     - if <[entity].is_spawned||false>:
-      - execute as_server "modelengine reset_position <[entity].uuid>" silent
+      - run modelengine_reset_model_position def:<[entity]>
 
 # Use a ModelEngine skill on a model.
 dcutscene_me_skill:
