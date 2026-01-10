@@ -94,6 +94,7 @@ dcutscene_modelengine_animation_stop:
     - flag <[entity]> dcutscene_modelengine_animation.state:stopped
     - flag <[entity]> dcutscene_modelengine_animation.name:!
     - flag <[entity]> dcutscene_modelengine_animation.mode:!
+    - flag <[entity]> dcutscene_modelengine_animation.stop_tick:!
     - flag <[entity]> dcutscene_model_animation_state:!
 
 #========= Cutscene Animator Tasks and Procedures =========
@@ -966,11 +967,20 @@ dcutscene_path_move:
               - define rotate_mul <[keyframe.rotate_mul]>
               - define ray_trace <[keyframe.ray_trace]>
               - define animation <[keyframe.animation]>
+              - define animation_duration <[keyframe.animation_duration_ticks]||0>
+              - if !<[animation_duration].is_integer>:
+                - define animation_duration 0
               #Model Animation
               - if <[animation]> != false && <[animation]> != stop:
                 - run dcutscene_modelengine_animation_play def.entity:<[entity]> def.animation:<[animation]>
+                - if <[animation_duration].is_more_than[0]>:
+                  - define stop_tick <[time_1].add[<[animation_duration]>]>
+                  - flag <[entity]> dcutscene_modelengine_animation.stop_tick:<[stop_tick]>
+                - else:
+                  - flag <[entity]> dcutscene_modelengine_animation.stop_tick:!
               - else if <[animation]> == stop:
                 - run dcutscene_modelengine_animation_stop def.entity:<[entity]>
+                - flag <[entity]> dcutscene_modelengine_animation.stop_tick:!
               #Reset position
               - if !<[entity].has_flag[dcutscene_model_animation_state]> || <[entity].flag[dcutscene_model_animation_state]> != hold:
                 - run dcutscene_me_reset_position def:<[entity]>
@@ -986,6 +996,22 @@ dcutscene_path_move:
               - define time <[time_2].sub[<[time_1]>]||null>
               - if <[time]> == null:
                 - teleport <[entity]> <[loc_2].with_yaw[<[loc_2].yaw>]>
+                - define stop_tick <[entity].flag[dcutscene_modelengine_animation.stop_tick]||null>
+                - if <[stop_tick].is_integer>:
+                  - define remaining <[stop_tick].sub[<[time_1]>]||0>
+                  - if <[remaining].is_more_than[0]>:
+                    - repeat <[remaining]>:
+                      - if <player.flag[dcutscene_played_scene.uuid]||null> != <[scene_uuid]>:
+                        - stop
+                      - define current_tick <[time_1].add[<[value]>]>
+                      - if <[current_tick].is_more_than[<[stop_tick].sub[1]>]> && <[entity].flag[dcutscene_modelengine_animation.stop_tick]||null> == <[stop_tick]>:
+                        - run dcutscene_modelengine_animation_stop def.entity:<[entity]>
+                        - flag <[entity]> dcutscene_modelengine_animation.stop_tick:!
+                        - stop
+                      - wait 1t
+                  - else:
+                    - run dcutscene_modelengine_animation_stop def.entity:<[entity]>
+                    - flag <[entity]> dcutscene_modelengine_animation.stop_tick:!
                 - foreach next
               - if <[interpolation]> == smooth:
                 #Before Extra
@@ -1008,6 +1034,12 @@ dcutscene_path_move:
                 - if <[entity].is_spawned>:
                   - define time_index <[value]>
                   - define time_percent <[time_index].div[<[time]>]>
+                  - define stop_tick <[entity].flag[dcutscene_modelengine_animation.stop_tick]||null>
+                  - if <[stop_tick].is_integer>:
+                    - define current_tick <[time_1].add[<[time_index]>]>
+                    - if <[current_tick].is_more_than[<[stop_tick].sub[1]>]>:
+                      - run dcutscene_modelengine_animation_stop def.entity:<[entity]>
+                      - flag <[entity]> dcutscene_modelengine_animation.stop_tick:!
                   - if <[move]>:
                     - if <[time_index]> < <[time]>:
                       #Rotation Interpolation

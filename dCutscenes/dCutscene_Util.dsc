@@ -318,7 +318,7 @@ dcutscene_command:
     - dscene
     description: Cutscene command for DCutscene
     tab completions:
-      1: <list[load|save|play|location|loc|animate|model|sound|material|particle|stop|item]>
+      1: <list[load|save|play|location|loc|animate|animate_duration|model|sound|material|particle|stop|item]>
       2: <player.proc[dcutscene_data_list].if_null[<empty>]>
     permission: dcutscene.op
     script:
@@ -426,6 +426,22 @@ dcutscene_command:
                     - if <[anim_name]> != false && <[anim_name]> != stop:
                       - flag server dcutscene_modelengine_animations.<[model]>.<[anim_name]>:true
                     - run dcutscene_model_keyframe_edit def:denizen_model|set_animation|<[a_2]>
+        #Set animation duration for model keyframes
+        - case animate_duration:
+          - if <player.has_flag[cutscene_modify]> && <player.flag[cutscene_modify]> == set_model_animation_duration:
+            - if <[a_2]> == null:
+              - define text "You must provide a duration in ticks."
+              - narrate "<[msg_prefix]> <gray><[text]>"
+              - stop
+            - if !<[a_2].is_integer>:
+              - define text "Animation duration must be a number of ticks."
+              - narrate "<[msg_prefix]> <gray><[text]>"
+              - stop
+            - if <[a_2].is_less_than[0]>:
+              - define text "Animation duration must be zero or greater."
+              - narrate "<[msg_prefix]> <gray><[text]>"
+              - stop
+            - run dcutscene_model_keyframe_edit def:denizen_model|set_animation_duration|<[a_2]>
         #Shows list of models
         - case model:
           - if <player.has_flag[cutscene_modify]>:

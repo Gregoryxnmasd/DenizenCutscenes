@@ -511,6 +511,9 @@ dcutscene_sub_keyframe_modify:
                   - define type_lore "<aqua>Type: <gray><[m_data.type]>"
                   - define model_lore "<aqua>Model: <gray><[m_data.model].if_null[<[models.<[root_tick]>.<[root_uuid]>.model]>]>"
                   - define anim_lore "<aqua>Animation: <gray><[lore_data.animation]>"
+                  - define anim_duration_value <[lore_data.animation_duration_ticks]||0>
+                  - define anim_duration_text <[anim_duration_value].is_more_than[0].if_true[<[anim_duration_value]>t].if_false[None]>
+                  - define anim_duration_lore "<aqua>Animation Duration: <gray><[anim_duration_text]>"
                   - define loc_lore "<aqua>Location: <gray><[lore_data.location].simple>"
                   - define path_interp_lore "<aqua>Path Interpolation: <gray><[lore_data.interpolation]>"
                   - define rotate_interp "<aqua>Rotate Interpolation: <gray><[lore_Data.rotate_interp]>"
@@ -521,15 +524,15 @@ dcutscene_sub_keyframe_modify:
                   - if <[root_check]> != none:
                     - if <[start_tick]> == null:
                       - define start_lore <empty>
-                      - define m_lore <list[<empty>|<[type_lore]>|<[model_lore]>|<[time_lore]>|<[anim_lore]>|<[loc_lore]>|<[path_interp_lore]>|<[rotate_interp]>|<[rotate_mul]>|<[ray_dir]>|<[move_lore]>|<empty>|<[modify]>]>
+                      - define m_lore <list[<empty>|<[type_lore]>|<[model_lore]>|<[time_lore]>|<[anim_lore]>|<[anim_duration_lore]>|<[loc_lore]>|<[path_interp_lore]>|<[rotate_interp]>|<[rotate_mul]>|<[ray_dir]>|<[move_lore]>|<empty>|<[modify]>]>
                     - else:
                       - define start_lore "<aqua>Starting Frame: <gray><[start_tick]>t"
-                      - define m_lore <list[<empty>|<[type_lore]>|<[model_lore]>|<[time_lore]>|<[anim_lore]>|<[loc_lore]>|<[path_interp_lore]>|<[rotate_interp]>|<[rotate_mul]>|<[ray_dir]>|<[move_lore]>|<[start_lore]>|<empty>|<[modify]>]>
+                      - define m_lore <list[<empty>|<[type_lore]>|<[model_lore]>|<[time_lore]>|<[anim_lore]>|<[anim_duration_lore]>|<[loc_lore]>|<[path_interp_lore]>|<[rotate_interp]>|<[rotate_mul]>|<[ray_dir]>|<[move_lore]>|<[start_lore]>|<empty>|<[modify]>]>
                   #=Root Model
                   - else:
                     #Lore
                     - define sub_frames "<aqua>Sub Frames: <gray><[m_data.sub_frames].keys.size||0>"
-                    - define m_lore <list[<empty>|<[type_lore]>|<[model_lore]>|<[time_lore]>|<[anim_lore]>|<[loc_lore]>|<[path_interp_lore]>|<[rotate_interp]>|<[rotate_mul]>|<[ray_dir]>|<[move_lore]>|<[sub_frames]>|<empty>|<[modify]>]>
+                    - define m_lore <list[<empty>|<[type_lore]>|<[model_lore]>|<[time_lore]>|<[anim_lore]>|<[anim_duration_lore]>|<[loc_lore]>|<[path_interp_lore]>|<[rotate_interp]>|<[rotate_mul]>|<[ray_dir]>|<[move_lore]>|<[sub_frames]>|<empty>|<[modify]>]>
                   - adjust <[opt_item]> lore:<[m_lore]> save:item
                   - define opt_item <entry[item].result>
                   #Data to pass through for use of modifying the modifier
@@ -1271,7 +1274,7 @@ dcutscene_inventory_keyframe_modify_model:
     slots:
     - [] [] [] [] [] [] [] [] []
     - [] [] [dcutscene_model_change_id] [dcutscene_model_change_item] [dcutscene_model_change_location] [dcutscene_model_ray_trace_change] [dcutscene_model_change_model] [] []
-    - [] [] [dcutscene_model_change_move] [dcutscene_model_change_animation] [dcutscene_model_interp_method] [dcutscene_model_show_path] [dcutscene_model_interp_rotate_change] [] []
+    - [] [] [dcutscene_model_change_move] [dcutscene_model_change_animation] [dcutscene_model_change_animation_duration] [dcutscene_model_interp_method] [dcutscene_model_show_path] [dcutscene_model_interp_rotate_change] [] []
     - [] [] [dcutscene_model_interp_rotate_mul] [dcutscene_model_move_to_keyframe] [dcutscene_model_duplicate] [dcutscene_model_timespot_play] [dcutscene_model_teleport_loc] [] []
     - [] [] [] [] [] [] [] [] []
     - [dcutscene_back_page] [] [] [dcutscene_remove_model_tick] [] [dcutscene_remove_model] [] [] [dcutscene_exit]
