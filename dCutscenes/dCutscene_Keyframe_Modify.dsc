@@ -687,6 +687,7 @@ dcutscene_model_keyframe_edit:
                   - debug error "Something went wrong could not determine model ID in dcutscene_model_keyframe_edit for create_model_name"
                   - stop
                 #Model verification
+                - run dcutscene_modelengine_sync_registry
                 - define model_index <proc[dcutscene_model_index]>
                 - if <[model_index].is_empty>:
                   - define text "There is no model data available"

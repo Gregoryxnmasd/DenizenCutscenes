@@ -456,6 +456,57 @@ dcutscene_command:
                 - run dcutscene_animator_keyframe_edit def:particle|change_particle|<[a_2]>
 
 # Sync ModelEngine registry data to dcutscene_models
+dcutscene_modelengine_sync_registry:
+    type: task
+    debug: true
+    script:
+    - define modelengine_data <server.flag[modelengine_data]||<map>>
+    - define me_models <list>
+    - execute as_server "modelengine list" save:me_list
+    - define raw_list <entry[me_list].result||null>
+    - if <[raw_list]> != null:
+      - define lines <[raw_list].split[\n]>
+      - foreach <[lines]> as:line:
+        - define cleaned <[line].strip_color.trim>
+        - if <[cleaned].starts_with[- ]>:
+          - define cleaned <[cleaned].after[- ]>
+        - if <[cleaned].starts_with[* ]>:
+          - define cleaned <[cleaned].after[* ]>
+        - if <[cleaned].contains[:]>:
+          - define cleaned <[cleaned].after[:]>
+        - define parts <[cleaned].split[,].parse_tag[<[parse_value].trim>]>
+        - foreach <[parts]> as:part:
+          - if <[part].is_empty>:
+            - foreach next
+          - define me_models:->:<[part]>
+    - define me_models <[me_models].deduplicate>
+    - foreach <[me_models]> as:model:
+      - define modelengine_data.model_<[model]>:true
+      - execute as_server "modelengine animation list <[model]>" save:me_anim
+      - define raw_anim <entry[me_anim].result||null>
+      - if <[raw_anim]> != null:
+        - define anim_map <map>
+        - define anim_lines <[raw_anim].split[\n]>
+        - foreach <[anim_lines]> as:line:
+          - define cleaned <[line].strip_color.trim>
+          - if <[cleaned].starts_with[- ]>:
+            - define cleaned <[cleaned].after[- ]>
+          - if <[cleaned].starts_with[* ]>:
+            - define cleaned <[cleaned].after[* ]>
+          - if <[cleaned].contains[:]>:
+            - define cleaned <[cleaned].after[:]>
+          - define parts <[cleaned].split[,].parse_tag[<[parse_value].trim>]>
+          - foreach <[parts]> as:anim:
+            - if <[anim].is_empty>:
+              - foreach next
+            - define anim_map.<[anim]>:true
+        - if !<[anim_map].is_empty>:
+          - define modelengine_data.animations_<[model]> <[anim_map]>
+    - if !<[me_models].is_empty>:
+      - flag server dcutscene_me_models:<[me_models]>
+    - if !<[modelengine_data].is_empty>:
+      - flag server modelengine_data:<[modelengine_data]>
+
 dcutscene_models_registry_sync:
     type: task
     debug: true
