@@ -1,7 +1,8 @@
 name: DenizenCutscenesModelEngine
 main: com.extracraft.CsMe4Plugin
 version: 0.1.0
-api-version: 1.19
+api-version: 1.20
+depend: [ModelEngine]
 commands:
   csme4:
     description: Minimal ModelEngine 4 control commands.

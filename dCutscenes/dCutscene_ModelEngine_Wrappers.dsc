@@ -5,16 +5,21 @@
 modelengine_spawn_model:
   type: task
   debug: true
-  definitions: model_name|location|tracking_range|viewer
+  definitions: model_name|location|tracking_range|viewer|cutscene_id
   script:
   - define location <[location].as[location]>
   - define tracking_range <[tracking_range].if_null[256]>
   - define viewer <[viewer].if_null[server]>
-  - define viewer_name <[viewer].name.if_null[server]>
+  - define viewer_target <[viewer].as_list.first||<[viewer]>>
+  - define viewer_uuid <[viewer_target].uuid||null>
+  - define cutscene_id <[cutscene_id].if_null[editor]>
   - define scan_radius 16
   - define max_attempts 10
   - define wait_ticks 2t
-  - define command "cs_me4 create <[model_name]> <[location].x> <[location].y> <[location].z> <[location].world.name> <[location].yaw> <[location].pitch> <[tracking_range]> <[viewer_name]>"
+  - if <[viewer_uuid]> == null:
+    - debug "modelengine_spawn_model: missing viewer UUID."
+    - stop
+  - define command "cs_me4 spawn <[viewer_uuid]> <[cutscene_id]> <[model_name]> <[location].x> <[location].y> <[location].z> <[location].yaw> <[location].pitch>"
   - define before_entities <[location].find_entities.within[<[scan_radius]>]||<list>>
   - execute as_server <[command]> silent
   - define spawned_entity null
@@ -44,7 +49,13 @@ modelengine_animate:
   debug: true
   definitions: entity|animation|instance_id
   script:
-  - define command "cs_me4 anim_play <[entity].uuid> <[animation]>"
+  - define viewer <[entity].flag[dcutscene_model_owner]||<player||null>>
+  - define viewer_uuid <[viewer].uuid||null>
+  - define cutscene_id <[entity].flag[dcutscene_scene_uuid]||editor>
+  - if <[viewer_uuid]> == null:
+    - debug "modelengine_animate: missing viewer UUID."
+    - stop
+  - define command "cs_me4 anim_play <[viewer_uuid]> <[cutscene_id]> <[animation]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]> animation:<[animation]>
   - flag server dcutscene_modelengine.last_animation_play:<[result]>
@@ -56,7 +67,17 @@ modelengine_end_animation:
   debug: true
   definitions: entity|instance_id
   script:
-  - define command "cs_me4 anim_stop <[entity].uuid>"
+  - define viewer <[entity].flag[dcutscene_model_owner]||<player||null>>
+  - define viewer_uuid <[viewer].uuid||null>
+  - define cutscene_id <[entity].flag[dcutscene_scene_uuid]||editor>
+  - if <[viewer_uuid]> == null:
+    - debug "modelengine_end_animation: missing viewer UUID."
+    - stop
+  - define animation_name <[entity].flag[dcutscene_modelengine_animation.name]||null>
+  - if <[animation_name]> != null:
+    - define command "cs_me4 anim_stop <[viewer_uuid]> <[cutscene_id]> <[animation_name]>"
+  - else:
+    - define command "cs_me4 anim_stop <[viewer_uuid]> <[cutscene_id]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]>
   - flag server dcutscene_modelengine.last_animation_stop:<[result]>
@@ -68,7 +89,13 @@ modelengine_delete:
   debug: true
   definitions: entity|instance_id
   script:
-  - define command "cs_me4 remove <[entity].uuid>"
+  - define viewer <[entity].flag[dcutscene_model_owner]||<player||null>>
+  - define viewer_uuid <[viewer].uuid||null>
+  - define cutscene_id <[entity].flag[dcutscene_scene_uuid]||editor>
+  - if <[viewer_uuid]> == null:
+    - debug "modelengine_delete: missing viewer UUID."
+    - stop
+  - define command "cs_me4 remove <[viewer_uuid]> <[cutscene_id]>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]>
   - flag server dcutscene_modelengine.last_delete:<[result]>
@@ -80,7 +107,14 @@ modelengine_reset_model_position:
   debug: false
   definitions: entity|instance_id
   script:
-  - define command "cs_me4 move <[entity].uuid> reset_position"
+  - define viewer <[entity].flag[dcutscene_model_owner]||<player||null>>
+  - define viewer_uuid <[viewer].uuid||null>
+  - define cutscene_id <[entity].flag[dcutscene_scene_uuid]||editor>
+  - if <[viewer_uuid]> == null:
+    - debug "modelengine_reset_model_position: missing viewer UUID."
+    - stop
+  - define location <[entity].location>
+  - define command "cs_me4 move <[viewer_uuid]> <[cutscene_id]> <[location].x> <[location].y> <[location].z> <[location].yaw> <[location].pitch>"
   - execute as_server <[command]> silent
   - definemap result command:<[command]> entity:<[entity]>
   - flag server dcutscene_modelengine.last_reset_position:<[result]>
