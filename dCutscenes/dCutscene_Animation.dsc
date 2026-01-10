@@ -1170,7 +1170,7 @@ dcutscene_path_move:
               #Time calculation
               - define time <[time_2].sub[<[time_1]>]||null>
               - if <[time]> == null:
-                - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
+                - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> <[loc_2].pitch||0> <[world].name>"
                 - define stop_tick <[entity].flag[dcutscene_modelengine_animation.stop_tick]||null>
                 - if <[stop_tick].is_integer>:
                   - define remaining <[stop_tick].sub[<[time_1]>]||0>
@@ -1248,14 +1248,14 @@ dcutscene_path_move:
                             - define ray <[data].above[0.5].with_pitch[-90].ray_trace[range=60;fluids=<[ray_trace.liquid]||false>;nonsolids=<[ray_trace.passable]||false>]||null>
                             - if <[ray]> != null:
                               - define data <[ray]>
-                      - execute as_server "cs_me4 move <[instance_id]> <[data].x> <[data].y> <[data].z> <[yaw]> 0"
+                      - execute as_server "cs_me4 move <[instance_id]> <[data].x> <[data].y> <[data].z> <[yaw]> <[data].pitch||0> <[world].name>"
                     - else:
-                      - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
+                      - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> <[loc_2].pitch||0> <[world].name>"
                   - else:
-                    - execute as_server "cs_me4 move <[instance_id]> <[loc_1].x> <[loc_1].y> <[loc_1].z> <[loc_1].yaw> 0"
+                    - execute as_server "cs_me4 move <[instance_id]> <[loc_1].x> <[loc_1].y> <[loc_1].z> <[loc_1].yaw> <[loc_1].pitch||0> <[world].name>"
                   - wait 1t
               - adjust <[loc_2].with_world[<[world]>].chunk> load
-              - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
+              - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> <[loc_2].pitch||0> <[world].name>"
 
           #====================== Player Model Path Move =======================
           - case player_model:
