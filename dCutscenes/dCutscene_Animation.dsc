@@ -157,11 +157,8 @@ dcutscene_animation_begin:
               - choose <[type]>:
                 #=Model
                 - case model:
-                  - define script <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
                   - define model_name <[model_data.model]>
-                  - if <[script]> == null:
-                    - debug error "Could not spawn model <[model_name]>. Is ModelEngine 4 installed and configured?"
-                    - foreach next
+                  - define script dcutscene_me_spawn_model
                   - define defs <list[<[model_name]>|<[spawn_loc]>|256|<[player]>]>
                 #=Player Model
                 - case player_model:
@@ -648,7 +645,7 @@ dcutscene_animation_stop:
         - case player_model:
           - run pmodels_remove_model def:<[model.root]>
         - case model:
-          - run modelengine_delete def:<[model.root]>
+          - run dcutscene_me_delete_model def:<[model.root]>
     - flag <[player]> dcutscene_played_scene:!
     - flag <[player]> dcutscene_spawned_models:!
     - flag <[player]> dcutscene_timespot:!
@@ -882,17 +879,17 @@ dcutscene_path_move:
               - define animation <[keyframe.animation]>
               #Model Animation
               - if <[animation]> != false && <[animation]> != stop:
-                - run modelengine_animate def:<[entity]>|<[animation]>
+                - run dcutscene_me_animate def:<[entity]>|<[animation]>
                 - define loop <server.flag[modelengine_data.animations_<[entity].flag[modelengine_model_id]>.<[animation]>.loop]||false>
                 - if <[loop]> == hold:
                   - flag <[entity]> dcutscene_model_animation_state:hold
                 - else:
                   - flag <[entity]> dcutscene_model_animation_state:!
               - else if <[animation]> == stop:
-                - run modelengine_end_animation def:<[entity]>
+            - run dcutscene_me_stop_animation def:<[entity]>
               #Reset position
               - if !<[entity].has_flag[dcutscene_model_animation_state]> || <[entity].flag[dcutscene_model_animation_state]> != hold:
-                - run modelengine_reset_model_position def:<[entity]>
+            - run dcutscene_me_reset_position def:<[entity]>
               #After
               - foreach <[keyframes]> key:aft_tick_id as:aft_keyframe:
                 - if <[aft_tick_id].is_more_than[<[time_1]>]>:
