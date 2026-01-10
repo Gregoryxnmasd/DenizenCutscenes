@@ -15,8 +15,15 @@ dcutscene_me_spawn_model:
       - determine null
     - define tracking_range <[tracking_range].if_null[256]>
     - define fake_to <[fake_to].if_null[<server.online_players>]>
-    - run modelengine_spawn_model def.model_name:<[model_name]> def.location:<[location]> def.tracking_range:<[tracking_range]> def.viewer:<[fake_to]> save:spawned
-    - determine <entry[spawned].determination.first||<entry[spawned].determination||<entry[spawned].spawned_entity||<entry[spawned].created_queue.determination.first||null>>>>
+    - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
+    - if <[modelengine_spawn]> == null:
+      - debug error "Could not find ModelEngine spawn script in dcutscene_me_spawn_model"
+      - stop
+    - run <[modelengine_spawn]> def.model_name:<[model_name]> def.location:<[location]> def.tracking_range:<[tracking_range]> def.viewer:<[fake_to]> def.fake_to:<[fake_to]> save:spawned
+    - define root <entry[spawned].determination.first||<entry[spawned].determination||<entry[spawned].spawned_entity||<entry[spawned].created_queue.determination.first||null>>>>
+    - if <[root]> != null:
+      - flag <[root]> modelengine_model_id:<[model_name]>
+    - determine <[root]>
 
 # Remove a ModelEngine model.
 dcutscene_me_delete_model:
