@@ -75,6 +75,10 @@
       <id>spigotmc-repo</id>
       <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
     </repository>
+    <repository>
+      <id>ticxo-repo</id>
+      <url>https://repo.ticxo.net/repository/maven-public/</url>
+    </repository>
   </repositories>
 
   <profiles>
