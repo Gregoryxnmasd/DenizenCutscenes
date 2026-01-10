@@ -14,9 +14,15 @@ modelengine_spawn_model:
   - define command "modelengine spawn <[model_name]> <[location].x> <[location].y> <[location].z> <[location].world.name> <[location].yaw> <[location].pitch> <[tracking_range]> <[viewer_name]>"
   - define before_entities <[location].find_entities.within[4]||<list>>
   - execute as_server <[command]> silent
-  - wait 1t
+  - wait 2t
   - define after_entities <[location].find_entities.within[4]||<list>>
-  - define spawned_entity <[after_entities].exclude[<[before_entities]>].first||<[after_entities].first||null>
+  - define new_entities <[after_entities].exclude[<[before_entities].parse_tag>]>
+  - define spawned_entity <[new_entities].first||<[after_entities].first||null>
+  - define fallback_entity <[viewer].if_null[server].flag[dcutscene_modelengine.last_spawn.entity]||<server.flag[dcutscene_modelengine.last_spawn.entity]>>
+  - if <[spawned_entity].is_null||false> && <[fallback_entity].is_spawned||false>:
+    - define spawned_entity <[fallback_entity]>
+  - if <[spawned_entity].is_null||false>:
+    - debug "modelengine_spawn_model: failed to resolve spawned entity for <[model_name]> near <[location]>. No new entity found and last_spawn flag missing or invalid."
   - definemap result command:<[command]> model:<[model_name]> location:<[location]> viewer:<[viewer]> entity:<[spawned_entity]>
   - flag server dcutscene_modelengine.last_spawn:<[result]>
   - if <[viewer].is_player||false>:
