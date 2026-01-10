@@ -685,7 +685,7 @@ dcutscene_model_keyframe_edit:
                   - define model_name <[model_name].trim>
                 - if <[model_name]> != null && <[model_name].length.is[0]>:
                   - define model_name null
-                - if <[model_id]> == null || <[model_id].length.is[0]>:
+                - if <[model_id]> == null || <[model_id].is_empty>:
                   - define text "Invalid model input '<[raw_input]>' - examples: ID, ID|model, ID model."
                   - narrate "<[msg_prefix]> <gray><[text]>"
                   - stop
