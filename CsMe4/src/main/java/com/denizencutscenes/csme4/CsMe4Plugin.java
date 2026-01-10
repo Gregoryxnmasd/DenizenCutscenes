@@ -51,8 +51,8 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
         String subcommand = args[0].toLowerCase(Locale.ROOT);
         switch (subcommand) {
-            case "create":
-                handleCreate(sender, args);
+            case "spawn":
+                handleSpawn(sender, args);
                 return true;
             case "anim_play":
                 handleAnimPlay(sender, args);
@@ -69,32 +69,57 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
             case "remove":
                 handleRemove(sender, args);
                 return true;
+            case "cleanup_viewer":
+                handleCleanupViewer(sender, args);
+                return true;
             default:
                 sendUsage(sender);
                 return true;
         }
     }
 
-    private void handleCreate(CommandSender sender, String[] args) {
-        if (args.length < 3) {
-            sender.sendMessage("Usage: /cs_me4 create <instanceId> <modelId> [viewer]");
+    private void handleSpawn(CommandSender sender, String[] args) {
+        if (args.length < 9) {
+            sender.sendMessage("Usage: /cs_me4 spawn <viewerUUID> <cutsceneId> <modelId> <x> <y> <z> <yaw> <pitch>");
             return;
         }
 
-        String instanceId = args[1];
-        if (instances.containsKey(instanceId)) {
-            sender.sendMessage("Instance already exists: " + instanceId);
+        UUID viewerUuid = parseUuid(sender, args[1], "viewerUUID");
+        if (viewerUuid == null) {
             return;
         }
 
-        String modelId = args[2];
-        Player viewer = resolveViewer(sender, args.length >= 4 ? args[3] : null);
+        String cutsceneId = args[2];
+        String modelId = args[3];
+        Player viewer = Bukkit.getPlayer(viewerUuid);
         if (viewer == null) {
             sender.sendMessage("Viewer must be an online player.");
             return;
         }
 
-        Location spawnLocation = viewer.getLocation();
+        double x;
+        double y;
+        double z;
+        float yaw;
+        float pitch;
+        try {
+            x = Double.parseDouble(args[4]);
+            y = Double.parseDouble(args[5]);
+            z = Double.parseDouble(args[6]);
+            yaw = Float.parseFloat(args[7]);
+            pitch = Float.parseFloat(args[8]);
+        } catch (NumberFormatException ex) {
+            sender.sendMessage("Location coordinates and rotation must be numbers.");
+            return;
+        }
+
+        String key = buildKey(viewerUuid, cutsceneId);
+        InstanceData existing = instances.remove(key);
+        if (existing != null) {
+            existing.dummy().setRemoved(true);
+        }
+
+        Location spawnLocation = new Location(viewer.getWorld(), x, y, z, yaw, pitch);
         Dummy<?> dummy = ModelEngineAPI.createDummy(spawnLocation);
         dummy.setDetectingPlayers(false);
 
@@ -104,148 +129,103 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
         applyVisibility(dummy, viewer.getUniqueId());
 
-        instances.put(instanceId, new InstanceData(dummy, modeledEntity, activeModel, viewer.getUniqueId(), false));
-        sender.sendMessage("Created ModelEngine instance: " + instanceId);
+        instances.put(key, new InstanceData(dummy, modeledEntity, activeModel, viewer.getUniqueId(), cutsceneId));
+        sender.sendMessage("Spawned ModelEngine instance for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
     }
 
     private void handleAnimPlay(CommandSender sender, String[] args) {
-        if (args.length < 3) {
-            sender.sendMessage("Usage: /cs_me4 anim_play <instanceId> <animationId> [fadeIn] [fadeOut] [speed] [loop]");
+        if (args.length < 4) {
+            sender.sendMessage("Usage: /cs_me4 anim_play <viewerUUID> <cutsceneId> <animationId>");
             return;
         }
 
-        InstanceData data = instances.get(args[1]);
+        UUID viewerUuid = parseUuid(sender, args[1], "viewerUUID");
+        if (viewerUuid == null) {
+            return;
+        }
+
+        String cutsceneId = args[2];
+        InstanceData data = instances.get(buildKey(viewerUuid, cutsceneId));
         if (data == null) {
-            sender.sendMessage("Unknown instance: " + args[1]);
+            sender.sendMessage("Missing instance for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
             return;
         }
 
-        String animationId = args[2];
-        float fadeIn = 0f;
-        float fadeOut = 0f;
-        float speed = 1f;
-        boolean loop = false;
-
-        if (args.length >= 4) {
-            Float parsedFadeIn = parseFloatArg(sender, args[3], "fadeIn");
-            if (parsedFadeIn == null) {
-                return;
-            }
-            fadeIn = parsedFadeIn;
-        }
-
-        if (args.length >= 5) {
-            Float parsedFadeOut = parseFloatArg(sender, args[4], "fadeOut");
-            if (parsedFadeOut == null) {
-                return;
-            }
-            fadeOut = parsedFadeOut;
-        }
-
-        if (args.length >= 6) {
-            Float parsedSpeed = parseFloatArg(sender, args[5], "speed");
-            if (parsedSpeed == null) {
-                return;
-            }
-            speed = parsedSpeed;
-        }
-
-        if (args.length >= 7) {
-            Boolean parsedLoop = parseBooleanArg(sender, args[6], "loop");
-            if (parsedLoop == null) {
-                return;
-            }
-            loop = parsedLoop;
-        }
-
-        data.activeModel().getAnimationHandler().playAnimation(animationId, fadeIn, fadeOut, speed, loop);
-        sender.sendMessage("Playing animation " + animationId + " for " + args[1]);
+        String animationId = args[3];
+        data.activeModel().getAnimationHandler().playAnimation(animationId, 0, 0);
+        sender.sendMessage("Playing animation " + animationId + " for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
     }
 
     private void handleAnimStop(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage("Usage: /cs_me4 anim_stop <instanceId> <animationId> [force]");
+            sender.sendMessage("Usage: /cs_me4 anim_stop <viewerUUID> <cutsceneId> [animationId]");
             return;
         }
 
-        InstanceData data = instances.get(args[1]);
+        UUID viewerUuid = parseUuid(sender, args[1], "viewerUUID");
+        if (viewerUuid == null) {
+            return;
+        }
+
+        String cutsceneId = args[2];
+        InstanceData data = instances.get(buildKey(viewerUuid, cutsceneId));
         if (data == null) {
-            sender.sendMessage("Unknown instance: " + args[1]);
+            sender.sendMessage("Missing instance for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
             return;
         }
 
-        String animationId = args[2];
-        boolean force = false;
         if (args.length >= 4) {
-            Boolean parsedForce = parseBooleanArg(sender, args[3], "force");
-            if (parsedForce == null) {
-                return;
-            }
-            force = parsedForce;
-        }
-
-        if (force) {
-            if (!forceStopAnimationIfAvailable(data.activeModel(), animationId)) {
-                data.activeModel().getAnimationHandler().stopAnimation(animationId);
-            }
-        } else {
+            String animationId = args[3];
             data.activeModel().getAnimationHandler().stopAnimation(animationId);
+            sender.sendMessage("Stopped animation " + animationId + " for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
+        } else {
+            data.activeModel().getAnimationHandler().stopAllAnimations();
+            sender.sendMessage("Stopped animations for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
         }
-        sender.sendMessage("Stopped animation " + animationId + " for " + args[1]);
     }
 
     private void handleMove(CommandSender sender, String[] args) {
-        if (args.length < 2) {
-            sender.sendMessage("Usage: /cs_me4 move <instanceId> [x y z yaw pitch [world]]");
+        if (args.length < 8) {
+            sender.sendMessage("Usage: /cs_me4 move <viewerUUID> <cutsceneId> <x> <y> <z> <yaw> <pitch>");
             return;
         }
 
-        InstanceData data = instances.get(args[1]);
+        UUID viewerUuid = parseUuid(sender, args[1], "viewerUUID");
+        if (viewerUuid == null) {
+            return;
+        }
+
+        String cutsceneId = args[2];
+        InstanceData data = instances.get(buildKey(viewerUuid, cutsceneId));
         if (data == null) {
-            sender.sendMessage("Unknown instance: " + args[1]);
+            sender.sendMessage("Missing instance for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
             return;
         }
 
-        Location targetLocation = null;
-        if (args.length >= 5) {
-            try {
-                double x = Double.parseDouble(args[2]);
-                double y = Double.parseDouble(args[3]);
-                double z = Double.parseDouble(args[4]);
-                targetLocation = data.dummy().getLocation().clone();
-                targetLocation.setX(x);
-                targetLocation.setY(y);
-                targetLocation.setZ(z);
-                if (args.length >= 7) {
-                    float yaw = Float.parseFloat(args[5]);
-                    float pitch = Float.parseFloat(args[6]);
-                    targetLocation.setYaw(yaw);
-                    targetLocation.setPitch(pitch);
-                }
-                if (args.length >= 8) {
-                    var world = Bukkit.getWorld(args[7]);
-                    if (world == null) {
-                        sender.sendMessage("Unknown world: " + args[7]);
-                        return;
-                    }
-                    targetLocation.setWorld(world);
-                }
-            } catch (NumberFormatException ex) {
-                sender.sendMessage("Coordinates, yaw, and pitch must be numbers.");
-                return;
-            }
-        } else if (sender instanceof Player player) {
-            targetLocation = player.getLocation();
-        }
-
-        if (targetLocation == null) {
-            sender.sendMessage("Provide coordinates or run as a player.");
+        double x;
+        double y;
+        double z;
+        float yaw;
+        float pitch;
+        try {
+            x = Double.parseDouble(args[3]);
+            y = Double.parseDouble(args[4]);
+            z = Double.parseDouble(args[5]);
+            yaw = Float.parseFloat(args[6]);
+            pitch = Float.parseFloat(args[7]);
+        } catch (NumberFormatException ex) {
+            sender.sendMessage("Location coordinates and rotation must be numbers.");
             return;
         }
 
+        Location targetLocation = data.dummy().getLocation().clone();
+        targetLocation.setX(x);
+        targetLocation.setY(y);
+        targetLocation.setZ(z);
+        targetLocation.setYaw(yaw);
+        targetLocation.setPitch(pitch);
         data.dummy().setLocation(targetLocation);
-        applyVisibility(data.dummy(), data.viewerUuid());
-        sender.sendMessage("Moved instance " + args[1]);
+        sender.sendMessage("Moved instance for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
     }
 
     private void handleVisibility(CommandSender sender, String[] args) {
@@ -288,51 +268,51 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
     }
 
     private void handleRemove(CommandSender sender, String[] args) {
-        if (args.length < 2) {
-            sender.sendMessage("Usage: /cs_me4 remove <instanceId>");
+        if (args.length < 3) {
+            sender.sendMessage("Usage: /cs_me4 remove <viewerUUID> <cutsceneId>");
             return;
         }
 
-        InstanceData data = instances.remove(args[1]);
+        UUID viewerUuid = parseUuid(sender, args[1], "viewerUUID");
+        if (viewerUuid == null) {
+            return;
+        }
+
+        String cutsceneId = args[2];
+        String key = buildKey(viewerUuid, cutsceneId);
+        InstanceData data = instances.remove(key);
         if (data == null) {
-            sender.sendMessage("Unknown instance: " + args[1]);
+            sender.sendMessage("Missing instance for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
             return;
         }
 
         data.dummy().setRemoved(true);
-        sender.sendMessage("Removed instance: " + args[1]);
+        sender.sendMessage("Removed instance for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
     }
 
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        cleanup_viewer(event.getPlayer().getUniqueId());
-    }
+    private void handleCleanupViewer(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sender.sendMessage("Usage: /cs_me4 cleanup_viewer <viewerUUID>");
+            return;
+        }
 
-    @EventHandler
-    public void onPlayerKick(PlayerKickEvent event) {
-        cleanup_viewer(event.getPlayer().getUniqueId());
-    }
+        UUID viewerUuid = parseUuid(sender, args[1], "viewerUUID");
+        if (viewerUuid == null) {
+            return;
+        }
 
-    private void cleanup_viewer(UUID viewerUuid) {
-        instances.entrySet().removeIf(entry -> {
-            InstanceData data = entry.getValue();
-            if (!data.viewerUuid().equals(viewerUuid)) {
-                return false;
+        int removedCount = 0;
+        var iterator = instances.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, InstanceData> entry = iterator.next();
+            if (!entry.getValue().viewerUuid().equals(viewerUuid)) {
+                continue;
             }
-            data.dummy().setRemoved(true);
-            data.modeledEntity().destroy();
-            return true;
-        });
-    }
-
-    private Player resolveViewer(CommandSender sender, String nameOrNull) {
-        if (nameOrNull != null) {
-            return Bukkit.getPlayer(nameOrNull);
+            entry.getValue().dummy().setRemoved(true);
+            iterator.remove();
+            removedCount++;
         }
-        if (sender instanceof Player player) {
-            return player;
-        }
-        return null;
+        sender.sendMessage("Removed " + removedCount + " instance(s) for viewer " + viewerUuid + ".");
     }
 
     private void applyVisibility(InstanceData data) {
@@ -350,11 +330,25 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
     }
 
     private void sendUsage(CommandSender sender) {
-        sender.sendMessage("/cs_me4 create <instanceId> <modelId> [viewer]");
-        sender.sendMessage("/cs_me4 anim_play <instanceId> <animationId> [fadeIn] [fadeOut] [speed] [loop]");
-        sender.sendMessage("/cs_me4 anim_stop <instanceId> <animationId> [force]");
-        sender.sendMessage("/cs_me4 move <instanceId> [x y z]");
-        sender.sendMessage("/cs_me4 remove <instanceId>");
+        sender.sendMessage("/cs_me4 spawn <viewerUUID> <cutsceneId> <modelId> <x> <y> <z> <yaw> <pitch>");
+        sender.sendMessage("/cs_me4 anim_play <viewerUUID> <cutsceneId> <animationId>");
+        sender.sendMessage("/cs_me4 anim_stop <viewerUUID> <cutsceneId> [animationId]");
+        sender.sendMessage("/cs_me4 move <viewerUUID> <cutsceneId> <x> <y> <z> <yaw> <pitch>");
+        sender.sendMessage("/cs_me4 remove <viewerUUID> <cutsceneId>");
+        sender.sendMessage("/cs_me4 cleanup_viewer <viewerUUID>");
+    }
+
+    private String buildKey(UUID viewerUuid, String cutsceneId) {
+        return viewerUuid + ":" + cutsceneId.toLowerCase(Locale.ROOT);
+    }
+
+    private UUID parseUuid(CommandSender sender, String input, String label) {
+        try {
+            return UUID.fromString(input);
+        } catch (IllegalArgumentException ex) {
+            sender.sendMessage(label + " must be a valid UUID.");
+            return null;
+        }
     }
 
     private void applyVisibility(Dummy<?> dummy, UUID viewerUuid) {
@@ -372,7 +366,8 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
             Dummy<?> dummy,
             ModeledEntity modeledEntity,
             ActiveModel activeModel,
-            UUID viewerUuid
+            UUID viewerUuid,
+            String cutsceneId
     ) {
     }
 }

@@ -362,7 +362,7 @@ dcutscene_animation_begin:
                   - if <[script]> == null:
                     - debug error "Could not spawn model <[model_name]>. Is ModelEngine 4 installed and configured?"
                     - foreach next
-                  - run <[script]> def.model_name:<[model_name]> def.location:<[spawn_loc]> def.tracking_range:256 def.fake_to:<[player]> save:spawned
+                  - run <[script]> def.model_name:<[model_name]> def.location:<[spawn_loc]> def.tracking_range:256 def.fake_to:<[player]> def.cutscene_id:<[scene_uuid]> save:spawned
                 #=Player Model
                 - case player_model:
                   - define script <script[pmodels_spawn_model]||null>
@@ -852,9 +852,9 @@ dcutscene_animation_stop:
     - define player <[player]||<player>>
     - flag <[player]> dcutscene_cleanup_in_progress:true
     - define bridge_command <script[dcutscenes_config].data_key[config].get[cutscene_bridge_command]||cs_me4>
-    - define bridge_instance <[player].flag[dcutscene_bridge_instance_id]||null>
-    - if <[bridge_instance]> != null:
-      - run dcutscene_bridge_command def.command:"<[bridge_command]> remove <[bridge_instance]>" def.player:<[player]> def.scene_uuid:<[bridge_instance]>
+    - define scene_uuid <[player].flag[dcutscene_played_scene.uuid]||null>
+    - if <[scene_uuid]> != null:
+      - run dcutscene_bridge_command def.command:"<[bridge_command]> cleanup_viewer <[player].uuid>" def.player:<[player]> def.scene_uuid:<[scene_uuid]>
     - inventory swap d:<[player].inventory> o:<[player].flag[dcutscene_played_scene_inv].if_null[<player.inventory>]>
     - cast INVISIBILITY remove
     - adjust <[player]> stop_sound
@@ -1098,7 +1098,7 @@ dcutscene_path_move:
           - case model:
             #=Preparation
             - run dcutscene_models_registry_sync def.player:<player>
-            - define instance_id <[entity].flag[modelengine_instance_id]||<[entity].uuid>>
+            - define viewer_uuid <player.uuid>
             - define keyframes <[cutscene.keyframes.models.<[data.tick]>.<[data.uuid]>.path]>
             - foreach <[keyframes]> key:tick_id as:keyframe:
               - define time_1 <[keyframe.tick]||null>
@@ -1170,7 +1170,7 @@ dcutscene_path_move:
               #Time calculation
               - define time <[time_2].sub[<[time_1]>]||null>
               - if <[time]> == null:
-                - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> <[loc_2].pitch||0> <[world].name>"
+                - execute as_server "cs_me4 move <[viewer_uuid]> <[scene_uuid]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
                 - define stop_tick <[entity].flag[dcutscene_modelengine_animation.stop_tick]||null>
                 - if <[stop_tick].is_integer>:
                   - define remaining <[stop_tick].sub[<[time_1]>]||0>
@@ -1215,8 +1215,8 @@ dcutscene_path_move:
                     - if <[current_tick].is_more_than[<[stop_tick].sub[1]>]>:
                       - run dcutscene_modelengine_animation_stop def.entity:<[entity]>
                       - flag <[entity]> dcutscene_modelengine_animation.stop_tick:!
-                  - if <[move]>:
-                    - if <[time_index]> < <[time]>:
+                - if <[move]>:
+                  - if <[time_index]> < <[time]>:
                       #Rotation Interpolation
                       - if <[rotate_interp]>:
                         - define interp_mul <[time_percent].mul[<[rotate_mul]>]>
@@ -1248,14 +1248,14 @@ dcutscene_path_move:
                             - define ray <[data].above[0.5].with_pitch[-90].ray_trace[range=60;fluids=<[ray_trace.liquid]||false>;nonsolids=<[ray_trace.passable]||false>]||null>
                             - if <[ray]> != null:
                               - define data <[ray]>
-                      - execute as_server "cs_me4 move <[instance_id]> <[data].x> <[data].y> <[data].z> <[yaw]> <[data].pitch||0> <[world].name>"
+                    - execute as_server "cs_me4 move <[viewer_uuid]> <[scene_uuid]> <[data].x> <[data].y> <[data].z> <[yaw]> 0"
                     - else:
-                      - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> <[loc_2].pitch||0> <[world].name>"
+                    - execute as_server "cs_me4 move <[viewer_uuid]> <[scene_uuid]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
                   - else:
-                    - execute as_server "cs_me4 move <[instance_id]> <[loc_1].x> <[loc_1].y> <[loc_1].z> <[loc_1].yaw> <[loc_1].pitch||0> <[world].name>"
+                  - execute as_server "cs_me4 move <[viewer_uuid]> <[scene_uuid]> <[loc_1].x> <[loc_1].y> <[loc_1].z> <[loc_1].yaw> 0"
                   - wait 1t
               - adjust <[loc_2].with_world[<[world]>].chunk> load
-              - execute as_server "cs_me4 move <[instance_id]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> <[loc_2].pitch||0> <[world].name>"
+              - execute as_server "cs_me4 move <[viewer_uuid]> <[scene_uuid]> <[loc_2].x> <[loc_2].y> <[loc_2].z> <[loc_2].yaw> 0"
 
           #====================== Player Model Path Move =======================
           - case player_model:

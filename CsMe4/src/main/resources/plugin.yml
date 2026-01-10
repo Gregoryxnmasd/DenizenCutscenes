@@ -5,4 +5,4 @@ api-version: 1.19
 commands:
   cs_me4:
     description: Minimal ModelEngine 4 control commands.
-    usage: /cs_me4
+    usage: /cs_me4 <spawn|move|anim_play|anim_stop|remove|cleanup_viewer>

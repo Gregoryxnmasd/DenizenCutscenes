@@ -6,7 +6,7 @@
 dcutscene_me_spawn_model:
     type: task
     debug: true
-    definitions: model_name|location|tracking_range|fake_to
+    definitions: model_name|location|tracking_range|fake_to|cutscene_id
     script:
     - define model_name <[model_name]||<[model]>>
     - define location <[location]||<[loc]>>
@@ -15,11 +15,12 @@ dcutscene_me_spawn_model:
       - determine null
     - define tracking_range <[tracking_range].if_null[256]>
     - define fake_to <[fake_to].if_null[<server.online_players>]>
+    - define cutscene_id <[cutscene_id].if_null[editor]>
     - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
     - if <[modelengine_spawn]> == null:
       - debug error "Could not find ModelEngine spawn script in dcutscene_me_spawn_model"
       - stop
-    - run <[modelengine_spawn]> def.model_name:<[model_name]> def.location:<[location]> def.tracking_range:<[tracking_range]> def.viewer:<[fake_to]> def.fake_to:<[fake_to]> save:spawned
+    - run <[modelengine_spawn]> def.model_name:<[model_name]> def.location:<[location]> def.tracking_range:<[tracking_range]> def.viewer:<[fake_to]> def.fake_to:<[fake_to]> def.cutscene_id:<[cutscene_id]> save:spawned
     - define root <entry[spawned].determination.first||<entry[spawned].determination||<entry[spawned].spawned_entity||<entry[spawned].created_queue.determination.first||null>>>>
     - if <[root]> == null:
       - define fallback_entity <server.flag[dcutscene_modelengine.last_spawn.entity]>
