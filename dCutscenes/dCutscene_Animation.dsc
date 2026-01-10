@@ -966,11 +966,37 @@ dcutscene_path_move:
               - define rotate_mul <[keyframe.rotate_mul]>
               - define ray_trace <[keyframe.ray_trace]>
               - define animation <[keyframe.animation]>
+              - define skills <[keyframe.skills]||<list>>
+              - define state <[keyframe.state]||unset>
+              - define tint <[keyframe.tint]||unset>
+              - define visibility <[keyframe.visibility]||unset>
+              - define bone <[keyframe.bone]||unset>
+              - define limb <[keyframe.limb]||unset>
+              - define hitbox <[keyframe.hitbox]||unset>
+              - define mount <[keyframe.mount]||unset>
               #Model Animation
               - if <[animation]> != false && <[animation]> != stop:
                 - run dcutscene_modelengine_animation_play def.entity:<[entity]> def.animation:<[animation]>
               - else if <[animation]> == stop:
                 - run dcutscene_modelengine_animation_stop def.entity:<[entity]>
+              #ModelEngine operations
+              - if <[skills].size> > 0:
+                - foreach <[skills]> as:skill_name:
+                  - run dcutscene_me_skill def.entity:<[entity]> def.skill:<[skill_name]>
+              - if <[state]> != unset:
+                - run dcutscene_me_state def.entity:<[entity]> def.state:<[state]>
+              - if <[tint]> != unset:
+                - run dcutscene_me_tint def.entity:<[entity]> def.tint:<[tint]>
+              - if <[visibility]> != unset:
+                - run dcutscene_me_visibility def.entity:<[entity]> def.visibility:<[visibility]>
+              - if <[bone]> != unset:
+                - run dcutscene_me_bone def.entity:<[entity]> def.args:<[bone]>
+              - if <[limb]> != unset:
+                - run dcutscene_me_limb def.entity:<[entity]> def.args:<[limb]>
+              - if <[hitbox]> != unset:
+                - run dcutscene_me_hitbox def.entity:<[entity]> def.args:<[hitbox]>
+              - if <[mount]> != unset:
+                - run dcutscene_me_mount def.entity:<[entity]> def.mount:<[mount]>
               #Reset position
               - if !<[entity].has_flag[dcutscene_model_animation_state]> || <[entity].flag[dcutscene_model_animation_state]> != hold:
                 - run dcutscene_me_reset_position def:<[entity]>
