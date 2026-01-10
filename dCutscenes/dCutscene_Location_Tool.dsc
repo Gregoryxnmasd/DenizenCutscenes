@@ -226,15 +226,15 @@ dcutscene_location_edit_ray_trace:
         - define root <[data.root_ent]||null>
         - define root_type <[data.root_type]>
         - define ploc <player.location>
+        #Rotate Model
+        - choose <player.flag[dcutscene_location_editor.reverse_model]>:
+          - case true:
+            - define yaw <[ploc].rotate_yaw[180].yaw>
+          - case false:
+            - define yaw <[ploc].yaw>
+        #Special attribute like model, entity, or player skin
+        - define attribute <player.flag[dcutscene_location_editor.attribute]>
         - if <[root]> != null:
-          #Rotate Model
-          - choose <player.flag[dcutscene_location_editor.reverse_model]>:
-            - case true:
-              - define yaw <[ploc].rotate_yaw[180].yaw>
-            - case false:
-              - define yaw <[ploc].yaw>
-          #Special attribute like model, entity, or player skin
-          - define attribute <player.flag[dcutscene_location_editor.attribute]>
           #Check if root model is not spawned and chunk is not loaded
           - if !<[root].is_spawned> || !<[root].location.chunk.is_loaded>:
             - run dcutscene_location_tool_model_spawner def.root_type:<[root_type]> def.attribute:<[attribute]> def.loc:<[ploc]>
@@ -250,7 +250,14 @@ dcutscene_location_edit_ray_trace:
             - case model:
               - run dcutscene_me_reset_model_position def:<[root]>
         - else:
-          - flag <player> dcutscene_location_editor.location:<[root].location>
+          - run dcutscene_location_tool_model_spawner def.root_type:<[root_type]> def.attribute:<[attribute]> def.loc:<[ploc]>
+          - define root <player.flag[dcutscene_location_editor.root_ent]||null>
+          - if <[root]> != null:
+            - define ray_loc <[ray_trace].with_yaw[<[yaw]>]>
+            - teleport <[root]> <[ray_loc]>
+            - flag <player> dcutscene_location_editor.location:<[ray_loc]>
+          - else:
+            - flag <player> dcutscene_location_editor.location:<[ray_trace]||<[ploc]>>
 
 # Spawns a model animator for the location tool and updates it
 dcutscene_location_tool_model_spawner:
