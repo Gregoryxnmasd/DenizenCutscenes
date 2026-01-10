@@ -705,7 +705,7 @@ dcutscene_model_keyframe_edit:
                     - narrate "<[msg_prefix]> <gray><[text]>"
                     - debug error "ModelEngine spawn script is null in dcutscene_model_keyframe_edit for create_model_name"
                     - stop
-                  - run <[modelengine_spawn]> def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
+                  - run <[modelengine_spawn]> def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.viewer:<player> save:spawned
                   - define root <entry[spawned].created_queue.determination.first||null>
                   - if <[root]> == null:
                     - define text "Failed to spawn the ModelEngine model. Check the spawn script and model name."

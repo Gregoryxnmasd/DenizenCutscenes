@@ -7,10 +7,11 @@ modelengine_spawn_model:
   debug: true
   definitions: model_name|location|tracking_range|viewer
   script:
-  - define location <[location].as_location>
+  - define location <[location].as[location]>
   - define tracking_range <[tracking_range].if_null[256]>
-  - define viewer_name <[viewer].if_null[server].name.if_null[server]>
-  - define command "modelengine spawn <[model_name]> <[location.x]> <[location.y]> <[location.z]> <[location.world.name]> <[location.yaw]> <[location.pitch]> <[tracking_range]> <[viewer_name]>"
+  - define viewer <[viewer].if_null[server]>
+  - define viewer_name <[viewer].name.if_null[server]>
+  - define command "modelengine spawn <[model_name]> <[location].x> <[location].y> <[location].z> <[location].world.name> <[location].yaw> <[location].pitch> <[tracking_range]> <[viewer_name]>"
   - define before_entities <[location].find_entities.within[4]||<list>>
   - execute as_server <[command]> silent
   - wait 1t
