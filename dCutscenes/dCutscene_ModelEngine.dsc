@@ -60,3 +60,75 @@ dcutscene_me_reset_position:
     script:
     - if <[entity].is_spawned||false>:
       - execute as_server "modelengine reset_position <[entity].uuid>" silent
+
+# Use a ModelEngine skill on a model.
+dcutscene_me_skill:
+    type: task
+    debug: true
+    definitions: entity|skill
+    script:
+    - if <[entity].is_spawned||false>:
+      - run modelengine_skill def.entity:<[entity]> def.skill:<[skill]>
+
+# Change ModelEngine state.
+dcutscene_me_state:
+    type: task
+    debug: true
+    definitions: entity|state
+    script:
+    - if <[entity].is_spawned||false>:
+      - run modelengine_state def.entity:<[entity]> def.state:<[state]>
+
+# Apply ModelEngine tint.
+dcutscene_me_tint:
+    type: task
+    debug: true
+    definitions: entity|tint
+    script:
+    - if <[entity].is_spawned||false>:
+      - run modelengine_tint def.entity:<[entity]> def.tint:<[tint]>
+
+# Toggle ModelEngine visibility.
+dcutscene_me_visibility:
+    type: task
+    debug: true
+    definitions: entity|visibility
+    script:
+    - if <[entity].is_spawned||false>:
+      - run modelengine_visibility def.entity:<[entity]> def.visibility:<[visibility]>
+
+# Apply ModelEngine bone adjustments.
+dcutscene_me_bone:
+    type: task
+    debug: true
+    definitions: entity|args
+    script:
+    - if <[entity].is_spawned||false>:
+      - run modelengine_bone def.entity:<[entity]> def.args:<[args]>
+
+# Apply ModelEngine limb adjustments.
+dcutscene_me_limb:
+    type: task
+    debug: true
+    definitions: entity|args
+    script:
+    - if <[entity].is_spawned||false>:
+      - run modelengine_limb def.entity:<[entity]> def.args:<[args]>
+
+# Apply ModelEngine hitbox adjustments.
+dcutscene_me_hitbox:
+    type: task
+    debug: true
+    definitions: entity|args
+    script:
+    - if <[entity].is_spawned||false>:
+      - run modelengine_hitbox def.entity:<[entity]> def.args:<[args]>
+
+# Apply ModelEngine mount settings.
+dcutscene_me_mount:
+    type: task
+    debug: true
+    definitions: entity|mount
+    script:
+    - if <[entity].is_spawned||false>:
+      - run modelengine_mount def.entity:<[entity]> def.mount:<[mount]>

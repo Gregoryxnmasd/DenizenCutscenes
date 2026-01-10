@@ -727,7 +727,7 @@ dcutscene_model_keyframe_edit:
                 - definemap model_data id:<[save_data.id]> model:<[save_data.model]> type:model root:none sub_frames:none item:<item[dcutscene_model_keyframe_item]||<item[dragon_head]>>
                 #Set model to path data
                 - definemap ray_trace_data direction:floor liquid:false passable:false
-                - definemap path_data interpolation:linear rotate_interp:true rotate_mul:1.0 move:true location:<[arg_2]> animation:false animation_duration_ticks:0 ray_trace:<[ray_trace_data]> tick:<[tick]>
+                - definemap path_data interpolation:linear rotate_interp:true rotate_mul:1.0 move:true location:<[arg_2]> animation:false skills:<list> state:unset tint:unset visibility:unset bone:unset limb:unset hitbox:unset mount:unset ray_trace:<[ray_trace_data]> tick:<[tick]>
                 - define model_data.path.<[tick]> <[path_data]>
                 - define data.keyframes.models.<[tick]>.<[model_uuid]> <[model_data]>
                 - define data.keyframes.models.<[tick]>.model_list:->:<[model_uuid]>
@@ -794,7 +794,7 @@ dcutscene_model_keyframe_edit:
                     - define root_id <[root_save.id]>
                     #Default data for new model
                     - definemap ray_trace_data direction:floor liquid:false passable:false
-                    - definemap path_data rotate_interp:true rotate_mul:1.0 interpolation:linear location:<[loc]> move:true animation:false animation_duration_ticks:0 ray_trace:<[ray_trace_data]> tick:<[tick]>
+                    - definemap path_data rotate_interp:true rotate_mul:1.0 interpolation:linear location:<[loc]> move:true animation:false skills:<list> state:unset tint:unset visibility:unset bone:unset limb:unset hitbox:unset mount:unset ray_trace:<[ray_trace_data]> tick:<[tick]>
                     #Update the root data
                     - define path <[data.keyframes.models.<[root_tick]>.<[root_uuid]>.path]>
                     - define path.<[tick]> <[path_data]>
@@ -1365,7 +1365,7 @@ dcutscene_model_keyframe_edit:
                   - define model_uuid <util.random_uuid>
                   - definemap model_data id:<player.flag[dcutscene_save_data.id]> type:player_model root:none sub_frames:none
                   - definemap ray_trace_data direction:floor liquid:false passable:false
-                  - definemap path_data interpolation:linear rotate_interp:true rotate_mul:1.0 move:true location:<[arg_3]> animation:false ray_trace:<[ray_trace_data]> skin:none tick:<[tick]>
+                  - definemap path_data interpolation:linear rotate_interp:true rotate_mul:1.0 move:true location:<[arg_3]> animation:false skills:<list> state:unset tint:unset visibility:unset bone:unset limb:unset hitbox:unset mount:unset ray_trace:<[ray_trace_data]> skin:none tick:<[tick]>
                   - define model_data.path.<[tick]> <[path_data]>
                   - define data.keyframes.models.<[tick]>.<[model_uuid]> <[model_data]>
                   - define data.keyframes.models.<[tick]>.model_list:->:<[model_uuid]>
@@ -1431,7 +1431,7 @@ dcutscene_model_keyframe_edit:
                     - define root_id <[root_save.id]>
                     #Default data for new model
                     - definemap ray_trace_data direction:floor liquid:false passable:false
-                    - definemap path_data rotate_interp:true rotate_mul:1.0 interpolation:linear location:<[loc]> move:true animation:false ray_trace:<[ray_trace_data]> skin:none tick:<[tick]>
+                    - definemap path_data rotate_interp:true rotate_mul:1.0 interpolation:linear location:<[loc]> move:true animation:false skills:<list> state:unset tint:unset visibility:unset bone:unset limb:unset hitbox:unset mount:unset ray_trace:<[ray_trace_data]> skin:none tick:<[tick]>
                     #Update the root data
                     - define path <[data.keyframes.models.<[root_tick]>.<[root_uuid]>.path]>
                     - define path.<[tick]> <[path_data]>

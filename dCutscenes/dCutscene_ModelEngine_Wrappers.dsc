@@ -69,3 +69,99 @@ modelengine_reset_model_position:
   - flag server dcutscene_modelengine.last_reset_position:<[result]>
   - if <[entity].is_spawned||false>:
     - flag <[entity]> dcutscene_modelengine.last_reset_position:<[result]>
+
+modelengine_skill:
+  type: task
+  debug: true
+  definitions: entity|skill
+  script:
+  - define command "modelengine skill <[entity].uuid> <[skill]>"
+  - execute as_server <[command]> silent
+  - definemap result command:<[command]> entity:<[entity]> skill:<[skill]>
+  - flag server dcutscene_modelengine.last_skill:<[result]>
+  - if <[entity].is_spawned||false>:
+    - flag <[entity]> dcutscene_modelengine.last_skill:<[result]>
+
+modelengine_state:
+  type: task
+  debug: true
+  definitions: entity|state
+  script:
+  - define command "modelengine state <[entity].uuid> <[state]>"
+  - execute as_server <[command]> silent
+  - definemap result command:<[command]> entity:<[entity]> state:<[state]>
+  - flag server dcutscene_modelengine.last_state:<[result]>
+  - if <[entity].is_spawned||false>:
+    - flag <[entity]> dcutscene_modelengine.last_state:<[result]>
+
+modelengine_tint:
+  type: task
+  debug: true
+  definitions: entity|tint
+  script:
+  - define command "modelengine tint <[entity].uuid> <[tint]>"
+  - execute as_server <[command]> silent
+  - definemap result command:<[command]> entity:<[entity]> tint:<[tint]>
+  - flag server dcutscene_modelengine.last_tint:<[result]>
+  - if <[entity].is_spawned||false>:
+    - flag <[entity]> dcutscene_modelengine.last_tint:<[result]>
+
+modelengine_visibility:
+  type: task
+  debug: true
+  definitions: entity|visibility
+  script:
+  - define command "modelengine visibility <[entity].uuid> <[visibility]>"
+  - execute as_server <[command]> silent
+  - definemap result command:<[command]> entity:<[entity]> visibility:<[visibility]>
+  - flag server dcutscene_modelengine.last_visibility:<[result]>
+  - if <[entity].is_spawned||false>:
+    - flag <[entity]> dcutscene_modelengine.last_visibility:<[result]>
+
+modelengine_bone:
+  type: task
+  debug: true
+  definitions: entity|args
+  script:
+  - define command "modelengine bone <[entity].uuid> <[args]>"
+  - execute as_server <[command]> silent
+  - definemap result command:<[command]> entity:<[entity]> args:<[args]>
+  - flag server dcutscene_modelengine.last_bone:<[result]>
+  - if <[entity].is_spawned||false>:
+    - flag <[entity]> dcutscene_modelengine.last_bone:<[result]>
+
+modelengine_limb:
+  type: task
+  debug: true
+  definitions: entity|args
+  script:
+  - define command "modelengine limb <[entity].uuid> <[args]>"
+  - execute as_server <[command]> silent
+  - definemap result command:<[command]> entity:<[entity]> args:<[args]>
+  - flag server dcutscene_modelengine.last_limb:<[result]>
+  - if <[entity].is_spawned||false>:
+    - flag <[entity]> dcutscene_modelengine.last_limb:<[result]>
+
+modelengine_hitbox:
+  type: task
+  debug: true
+  definitions: entity|args
+  script:
+  - define command "modelengine hitbox <[entity].uuid> <[args]>"
+  - execute as_server <[command]> silent
+  - definemap result command:<[command]> entity:<[entity]> args:<[args]>
+  - flag server dcutscene_modelengine.last_hitbox:<[result]>
+  - if <[entity].is_spawned||false>:
+    - flag <[entity]> dcutscene_modelengine.last_hitbox:<[result]>
+
+modelengine_mount:
+  type: task
+  debug: true
+  definitions: entity|mount
+  script:
+  - define command "modelengine mount <[entity].uuid> <[mount]>"
+  - execute as_server <[command]> silent
+  - definemap result command:<[command]> entity:<[entity]> mount:<[mount]>
+  - flag server dcutscene_modelengine.last_mount:<[result]>
+  - if <[entity].is_spawned||false>:
+    - flag <[entity]> dcutscene_modelengine.last_mount:<[result]>
