@@ -695,29 +695,26 @@ dcutscene_model_keyframe_edit:
                   - debug error "Something went wrong could not determine model ID in dcutscene_model_keyframe_edit for create_model_name"
                   - stop
                 #Model verification
-                - if <server.has_flag[modelengine_data]>:
-                  - if <server.flag[modelengine_data.model_<[arg_2]>]||null> != null:
-                    #If there is a model present remove it
-                    - if <player.has_flag[dcutscene_location_editor]>:
-                      - define loc_data <player.flag[dcutscene_location_editor]>
-                      - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
-                    #Give location tool and spawn the model
-                    - flag <player> cutscene_modify:new_model_location expire:10m
-                    - run <[modelengine_spawn]> def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
-                    - define root <entry[spawned].created_queue.determination.first>
-                    #Don't reset save_data with a - definemap
-                    - flag <player> dcutscene_save_data.root:<[root]>
-                    - flag <player> dcutscene_save_data.model:<[arg_2]>
-                    - run dcutscene_location_tool_give_data def:<player.location>|<[root]>|<[root].location.yaw>|model|<[arg_2]>
-                    - define text "After choosing your location for this model click <green>Confirm Location <gray>in the location GUI or chat <green>confirm<gray>. To re-open the location GUI do /dcutscene location."
-                    - narrate "<[msg_prefix]> <gray><[text]>"
-                    - inventory open d:dcutscene_inventory_location_tool
-                  - else:
-                    - define text "That model does not seem to exist."
-                    - narrate "<[msg_prefix]> <gray><[text]>"
-                - else:
-                  - define text "There is no model data available"
+                - if <server.has_flag[dcutscene_modelengine_models]> && <server.flag[dcutscene_modelengine_models.<[arg_2]>]||null> == null:
+                  - define text "That model does not seem to exist."
                   - narrate "<[msg_prefix]> <gray><[text]>"
+                - else:
+                  #If there is a model present remove it
+                  - if <player.has_flag[dcutscene_location_editor]>:
+                    - define loc_data <player.flag[dcutscene_location_editor]>
+                    - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
+                  #Give location tool and spawn the model
+                  - flag <player> cutscene_modify:new_model_location expire:10m
+                  - run <[modelengine_spawn]> def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
+                  - define root <entry[spawned].created_queue.determination.first>
+                  - flag server dcutscene_modelengine_models.<[arg_2]>:true
+                  #Don't reset save_data with a - definemap
+                  - flag <player> dcutscene_save_data.root:<[root]>
+                  - flag <player> dcutscene_save_data.model:<[arg_2]>
+                  - run dcutscene_location_tool_give_data def:<player.location>|<[root]>|<[root].location.yaw>|model|<[arg_2]>
+                  - define text "After choosing your location for this model click <green>Confirm Location <gray>in the location GUI or chat <green>confirm<gray>. To re-open the location GUI do /dcutscene location."
+                  - narrate "<[msg_prefix]> <gray><[text]>"
+                  - inventory open d:dcutscene_inventory_location_tool
 
               #-Set the model into the data and location
               - case location_set_and_create_model:
@@ -778,6 +775,7 @@ dcutscene_model_keyframe_edit:
                         - narrate "<[msg_prefix]> <gray><[text]>"
                         - flag <player> dcutscene_save_data.data:<[root_save]>
                         - define model <[root_data.model]>
+                        - flag server dcutscene_modelengine_models.<[model]>:true
                         - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
                         - if <[modelengine_spawn]> == null:
                           - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
@@ -922,6 +920,7 @@ dcutscene_model_keyframe_edit:
                 - if <[modelengine_spawn]> == null:
                   - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
                   - stop
+                - flag server dcutscene_modelengine_models.<[model]>:true
                 - run <[modelengine_spawn]> def:<[model]>|<player.location>|256|<player> save:spawned
                 - define root <entry[spawned].created_queue.determination.first>
                 - flag <player> dcutscene_save_data.root:<[root]>
