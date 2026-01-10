@@ -1,4 +1,4 @@
-package com.denizencutscenes.csme4;
+package com.extracraft;
 
 import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.dummy.Dummy;
@@ -21,8 +21,8 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
 
     @Override
     public void onEnable() {
-        if (getCommand("cs_me4") != null) {
-            getCommand("cs_me4").setExecutor(this);
+        if (getCommand("csme4") != null) {
+            getCommand("csme4").setExecutor(this);
         }
     }
 
@@ -58,7 +58,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
 
     private void handleCreate(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage("Usage: /cs_me4 create <instanceId> <modelId> [viewer]");
+            sender.sendMessage("Usage: /csme4 create <instanceId> <modelId> [viewer]");
             return;
         }
 
@@ -91,7 +91,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
 
     private void handleAnimPlay(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage("Usage: /cs_me4 anim_play <instanceId> <animationId>");
+            sender.sendMessage("Usage: /csme4 anim_play <instanceId> <animationId>");
             return;
         }
 
@@ -108,7 +108,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
 
     private void handleAnimStop(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage("Usage: /cs_me4 anim_stop <instanceId> <animationId>");
+            sender.sendMessage("Usage: /csme4 anim_stop <instanceId> <animationId>");
             return;
         }
 
@@ -125,7 +125,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
 
     private void handleMove(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage("Usage: /cs_me4 move <instanceId> [x y z]");
+            sender.sendMessage("Usage: /csme4 move <instanceId> [x y z]");
             return;
         }
 
@@ -164,7 +164,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
 
     private void handleRemove(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage("Usage: /cs_me4 remove <instanceId>");
+            sender.sendMessage("Usage: /csme4 remove <instanceId>");
             return;
         }
 
@@ -189,11 +189,11 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
     }
 
     private void sendUsage(CommandSender sender) {
-        sender.sendMessage("/cs_me4 create <instanceId> <modelId> [viewer]");
-        sender.sendMessage("/cs_me4 anim_play <instanceId> <animationId>");
-        sender.sendMessage("/cs_me4 anim_stop <instanceId> <animationId>");
-        sender.sendMessage("/cs_me4 move <instanceId> [x y z]");
-        sender.sendMessage("/cs_me4 remove <instanceId>");
+        sender.sendMessage("/csme4 create <instanceId> <modelId> [viewer]");
+        sender.sendMessage("/csme4 anim_play <instanceId> <animationId>");
+        sender.sendMessage("/csme4 anim_stop <instanceId> <animationId>");
+        sender.sendMessage("/csme4 move <instanceId> [x y z]");
+        sender.sendMessage("/csme4 remove <instanceId>");
     }
 
     private record InstanceData(

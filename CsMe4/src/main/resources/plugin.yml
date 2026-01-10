@@ -1,8 +1,8 @@
 name: DenizenCutscenesModelEngine
-main: com.denizencutscenes.csme4.CsMe4Plugin
+main: com.extracraft.CsMe4Plugin
 version: 0.1.0
 api-version: 1.19
 commands:
-  cs_me4:
+  csme4:
     description: Minimal ModelEngine 4 control commands.
-    usage: /cs_me4
+    usage: /csme4
