@@ -102,7 +102,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
         ActiveModel activeModel = ModelEngineAPI.createActiveModel(modelId);
         modeledEntity.addModel(activeModel);
 
-        dummy.setForceViewing(viewer, true);
+        applyVisibility(dummy, viewer.getUniqueId());
 
         instances.put(instanceId, new InstanceData(dummy, modeledEntity, activeModel, viewer.getUniqueId(), false));
         sender.sendMessage("Created ModelEngine instance: " + instanceId);
@@ -244,7 +244,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
         }
 
         data.dummy().setLocation(targetLocation);
-        applyVisibility(data);
+        applyVisibility(data.dummy(), data.viewerUuid());
         sender.sendMessage("Moved instance " + args[1]);
     }
 
@@ -357,46 +357,14 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
         sender.sendMessage("/cs_me4 remove <instanceId>");
     }
 
-    private Float parseFloatArg(CommandSender sender, String value, String label) {
-        try {
-            return Float.parseFloat(value);
-        } catch (NumberFormatException ex) {
-            sender.sendMessage(label + " must be a number.");
-            return null;
-        }
-    }
-
-    private Boolean parseBooleanArg(CommandSender sender, String value, String label) {
-        if ("true".equalsIgnoreCase(value)) {
-            return true;
-        }
-        if ("false".equalsIgnoreCase(value)) {
-            return false;
-        }
-        sender.sendMessage(label + " must be true or false.");
-        return null;
-    }
-
-    private boolean forceStopAnimationIfAvailable(ActiveModel model, String animationId) {
-        Object handler = model.getAnimationHandler();
-        try {
-            Method method = handler.getClass().getMethod("forceStopAnimation", String.class);
-            method.invoke(handler, animationId);
-            return true;
-        } catch (NoSuchMethodException ignored) {
-            try {
-                Method method = handler.getClass().getMethod("stopAnimation", String.class, boolean.class);
-                method.invoke(handler, animationId, true);
-                return true;
-            } catch (NoSuchMethodException ignoredAgain) {
-                return false;
-            } catch (IllegalAccessException | InvocationTargetException ex) {
-                getLogger().warning("Failed to force stop animation " + animationId + ": " + ex.getMessage());
-                return false;
+    private void applyVisibility(Dummy<?> dummy, UUID viewerUuid) {
+        Player viewer = Bukkit.getPlayer(viewerUuid);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (viewer != null && player.getUniqueId().equals(viewerUuid)) {
+                dummy.setForceViewing(player, true);
+            } else {
+                dummy.setForceHidden(player, true);
             }
-        } catch (IllegalAccessException | InvocationTargetException ex) {
-            getLogger().warning("Failed to force stop animation " + animationId + ": " + ex.getMessage());
-            return false;
         }
     }
 
