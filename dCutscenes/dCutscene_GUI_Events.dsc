@@ -213,11 +213,23 @@ dcutscene_events:
           #Set the newly created model into the dcutscene data including the location specified
           - case new_model_location:
             - if <[msg]> == confirm:
-              - run dcutscene_model_keyframe_edit def:denizen_model|location_set_and_create_model|<player.flag[dcutscene_location_editor.location]>
+              - define location <player.flag[dcutscene_location_editor.location].parsed||null>
+              - if !<player.has_flag[dcutscene_location_editor.location]> || <[location]> == null:
+                - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
+                - define text "Please re-open the location GUI (<green>/dcutscene location<gray>) or reselect the location, then try again."
+                - narrate "<[msg_prefix]> <gray><[text]>"
+                - stop
+              - run dcutscene_model_keyframe_edit def:denizen_model|location_set_and_create_model|<[location]>
           #Put new model keyframe point based on previous model
           - case new_model_keyframe_point:
             - if <[msg]> == confirm:
-              - run dcutscene_model_keyframe_edit def:denizen_model|create_present|new_keyframe_set|<player.flag[dcutscene_location_editor.location]>
+              - define location <player.flag[dcutscene_location_editor.location].parsed||null>
+              - if !<player.has_flag[dcutscene_location_editor.location]> || <[location]> == null:
+                - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
+                - define text "Please re-open the location GUI (<green>/dcutscene location<gray>) or reselect the location, then try again."
+                - narrate "<[msg_prefix]> <gray><[text]>"
+                - stop
+              - run dcutscene_model_keyframe_edit def:denizen_model|create_present|new_keyframe_set|<[location]>
           #Change model ID
           - case change_model_id:
             - run dcutscene_model_keyframe_edit def:denizen_model|change_id|<[msg]>
@@ -230,7 +242,13 @@ dcutscene_events:
           #Change model location
           - case set_new_model_location:
             - if <[msg]> == confirm:
-              - run dcutscene_model_keyframe_edit def:denizen_model|change_location|<player.flag[dcutscene_location_editor.location]>
+              - define location <player.flag[dcutscene_location_editor.location].parsed||null>
+              - if !<player.has_flag[dcutscene_location_editor.location]> || <[location]> == null:
+                - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
+                - define text "Please re-open the location GUI (<green>/dcutscene location<gray>) or reselect the location, then try again."
+                - narrate "<[msg_prefix]> <gray><[text]>"
+                - stop
+              - run dcutscene_model_keyframe_edit def:denizen_model|change_location|<[location]>
           #Stop model path from being shown
           - case model_path:
             - if <[msg]> == stop:
@@ -246,18 +264,36 @@ dcutscene_events:
           #Set new player model location
           - case new_player_model_location:
             - if <[msg]> == confirm:
-              - run dcutscene_model_keyframe_edit def:player_model|create|location_set|<player.flag[dcutscene_location_editor.location]>
+              - define location <player.flag[dcutscene_location_editor.location].parsed||null>
+              - if !<player.has_flag[dcutscene_location_editor.location]> || <[location]> == null:
+                - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
+                - define text "Please re-open the location GUI (<green>/dcutscene location<gray>) or reselect the location, then try again."
+                - narrate "<[msg_prefix]> <gray><[text]>"
+                - stop
+              - run dcutscene_model_keyframe_edit def:player_model|create|location_set|<[location]>
           #Put new player model keyframe point based on previous player model
           - case new_player_model_keyframe_point:
             - if <[msg]> == confirm:
-              - run dcutscene_model_keyframe_edit def:player_model|create_present|new_keyframe_set|<player.flag[dcutscene_location_editor.location]>
+              - define location <player.flag[dcutscene_location_editor.location].parsed||null>
+              - if !<player.has_flag[dcutscene_location_editor.location]> || <[location]> == null:
+                - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
+                - define text "Please re-open the location GUI (<green>/dcutscene location<gray>) or reselect the location, then try again."
+                - narrate "<[msg_prefix]> <gray><[text]>"
+                - stop
+              - run dcutscene_model_keyframe_edit def:player_model|create_present|new_keyframe_set|<[location]>
           #Sets a new id for the player model
           - case set_player_model_id:
             - run dcutscene_model_keyframe_edit def:player_model|change_id|id_set|<[msg]>
           #Sets new location for already created player model
           - case set_new_player_model_location:
             - if <[msg]> == confirm:
-              - run dcutscene_model_keyframe_edit def:player_model|location|set_location|<player.flag[dcutscene_location_editor.location]>
+              - define location <player.flag[dcutscene_location_editor.location].parsed||null>
+              - if !<player.has_flag[dcutscene_location_editor.location]> || <[location]> == null:
+                - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
+                - define text "Please re-open the location GUI (<green>/dcutscene location<gray>) or reselect the location, then try again."
+                - narrate "<[msg_prefix]> <gray><[text]>"
+                - stop
+              - run dcutscene_model_keyframe_edit def:player_model|location|set_location|<[location]>
           #Set rotation multiplier
           - case player_model_change_rotate_mul:
             - run dcutscene_model_keyframe_edit def:player_model|change_rotate_mul|<[msg]>
