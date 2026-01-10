@@ -87,7 +87,7 @@ dcutscene_modelengine_animation_parse:
 dcutscene_modelengine_animation_play:
     type: task
     debug: true
-    definitions: entity|animation
+    definitions: entity|animation|fade_in|fade_out|speed|loop
     script:
     - if <[entity]> == null:
       - stop
@@ -97,6 +97,20 @@ dcutscene_modelengine_animation_play:
     - if <[parsed.name]> == stop:
       - run dcutscene_modelengine_animation_stop def.entity:<[entity]>
       - stop
+    - define fade_in_input <[fade_in].if_null[0t]>
+    - define fade_out_input <[fade_out].if_null[0t]>
+    - define speed <[speed].if_null[1]>
+    - define loop <[loop].if_null[null]>
+    - if <[loop]> == null:
+      - define loop <[parsed.mode].equals_case_sensitive[loop]>
+    - if <[fade_in_input].is_integer>:
+      - define fade_in_ticks <[fade_in_input]>
+    - else:
+      - define fade_in_ticks <duration[<[fade_in_input]>].in_ticks>
+    - if <[fade_out_input].is_integer>:
+      - define fade_out_ticks <[fade_out_input]>
+    - else:
+      - define fade_out_ticks <duration[<[fade_out_input]>].in_ticks>
     - define mode <[parsed.mode]||once>
     - define model_id <[entity].flag[modelengine_model_id]||null>
     - define owner <[entity].flag[dcutscene_model_owner]||<player||null>>
@@ -105,7 +119,7 @@ dcutscene_modelengine_animation_play:
       - define scope <[scene_uuid].if_null[editor]>
       - flag <[owner]> dcutscene_modelengine_models.<[scope]>.<[model_id]>:true
       - flag <[owner]> dcutscene_modelengine_animations.<[scope]>.<[model_id]>.<[parsed.name]>:true
-    - execute as_server "modelengine animation play <[entity].uuid> <[parsed.name]> <[mode]>"
+    - execute as_server "cs_me4 anim_play <[entity].uuid> <[parsed.name]> <[fade_in_ticks]> <[fade_out_ticks]> <[speed]> <[loop]>"
     - flag <[entity]> dcutscene_modelengine_animation.name:<[parsed.name]>
     - flag <[entity]> dcutscene_modelengine_animation.mode:<[mode]>
     - flag <[entity]> dcutscene_modelengine_animation.state:playing
@@ -1083,6 +1097,12 @@ dcutscene_path_move:
               - define rotate_mul <[keyframe.rotate_mul]>
               - define ray_trace <[keyframe.ray_trace]>
               - define animation <[keyframe.animation]>
+              - define animation_duration <[keyframe.animation_duration_ticks]||0>
+              - define animation_params <[keyframe.animation_params]||<[keyframe.animation_parameters]||<map>>>
+              - define animation_fade_in <[keyframe.animation_fade_in]||<[animation_params.fade_in]||<[animation_params.fadeIn]||0t>>>
+              - define animation_fade_out <[keyframe.animation_fade_out]||<[animation_params.fade_out]||<[animation_params.fadeOut]||0t>>>
+              - define animation_speed <[keyframe.animation_speed]||<[animation_params.speed]||1>>
+              - define animation_loop <[keyframe.animation_loop]||<[animation_params.loop]||null>>
               - define skills <[keyframe.skills]||<list>>
               - define state <[keyframe.state]||unset>
               - define tint <[keyframe.tint]||unset>
@@ -1093,7 +1113,7 @@ dcutscene_path_move:
               - define mount <[keyframe.mount]||unset>
               #Model Animation
               - if <[animation]> != false && <[animation]> != stop:
-                - run dcutscene_modelengine_animation_play def.entity:<[entity]> def.animation:<[animation]>
+                - run dcutscene_modelengine_animation_play def.entity:<[entity]> def.animation:<[animation]> def.fade_in:<[animation_fade_in]> def.fade_out:<[animation_fade_out]> def.speed:<[animation_speed]> def.loop:<[animation_loop]>
                 - if <[animation_duration].is_more_than[0]>:
                   - define stop_tick <[time_1].add[<[animation_duration]>]>
                   - flag <[entity]> dcutscene_modelengine_animation.stop_tick:<[stop_tick]>
