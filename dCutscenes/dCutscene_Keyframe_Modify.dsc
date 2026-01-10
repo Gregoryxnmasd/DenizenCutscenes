@@ -772,7 +772,7 @@ dcutscene_model_keyframe_edit:
                         - narrate "<[msg_prefix]> <gray><[text]>"
                         - flag <player> dcutscene_save_data.data:<[root_save]>
                         - define model <[root_data.model]>
-                        - flag server dcutscene_modelengine_models.<[model]>:true
+                        - flag <player> dcutscene_modelengine_models.editor.<[model]>:true
                         - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
                         - if <[modelengine_spawn]> == null:
                           - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
@@ -917,7 +917,7 @@ dcutscene_model_keyframe_edit:
                 - if <[modelengine_spawn]> == null:
                   - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
                   - stop
-                - flag server dcutscene_modelengine_models.<[model]>:true
+                - flag <player> dcutscene_modelengine_models.editor.<[model]>:true
                 - run <[modelengine_spawn]> def:<[model]>|<player.location>|256|<player> save:spawned
                 - define root <entry[spawned].created_queue.determination.first>
                 - flag <player> dcutscene_save_data.root:<[root]>
