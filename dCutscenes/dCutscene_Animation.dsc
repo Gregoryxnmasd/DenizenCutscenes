@@ -21,6 +21,8 @@ dcutscene_animation_events:
     events:
       on player quits flagged:dcutscene_played_scene:
       - run dcutscene_animation_stop def.player:<player>
+      on player quits flagged:dcutscene_spawned_models:
+      - run dcutscene_animation_cleanup_models def.player:<player>
       on player exits armor_stand flagged:dcutscene_camera:
       - determine cancelled
       on player right clicks entity flagged:dcutscene_camera:
@@ -162,7 +164,7 @@ dcutscene_animation_begin:
                   - if <[script]> == null:
                     - debug error "Could not spawn model <[model_name]>. Is ModelEngine 4 installed and configured?"
                     - foreach next
-                  - define defs <list[<[model_name]>|<[spawn_loc]>|256|<[player]>]>
+                  - run <[script]> def.model_name:<[model_name]> def.location:<[spawn_loc]> def.tracking_range:256 def.fake_to:<[player]> save:spawned
                 #=Player Model
                 - case player_model:
                   - define script <script[pmodels_spawn_model]||null>
@@ -190,7 +192,8 @@ dcutscene_animation_begin:
                   - define defs <list[<[spawn_loc]>|<[skin]>|<[player]>]>
                 - default:
                   - foreach next
-              - run <[script]> def:<[defs]> save:spawned
+              - if <[type]> != model:
+                - run <[script]> def:<[defs]> save:spawned
               - define root <entry[spawned].created_queue.determination.first>
               - if <[type]> == model:
                 - flag <[root]> modelengine_model_id:<[model_name]>
@@ -612,6 +615,21 @@ dcutscene_time_animator:
         - case false:
           - time player <[t_data.time]> reset:<[t_data.duration]>
 
+#======== Cutscene Model Cleanup ============
+dcutscene_animation_cleanup_models:
+    type: task
+    debug: false
+    definitions: player
+    script:
+    - define player <[player]||<player>>
+    - foreach <[player].flag[dcutscene_spawned_models]||<list>> key:id as:model:
+      - choose <[model.type]>:
+        - case player_model:
+          - run pmodels_remove_model def:<[model.root]>
+        - case model:
+          - run modelengine_delete def:<[model.root]>
+    - flag <[player]> dcutscene_spawned_models:!
+
 #======== Cutscene Animation Stop ============
 dcutscene_animation_stop:
     type: task
@@ -643,14 +661,8 @@ dcutscene_animation_stop:
       - flag <[player]> dcutscene_camera:!
       - flag <[player]> dcutscene_bound:!
     #Spawned models removal
-    - foreach <[player].flag[dcutscene_spawned_models]||<list>> key:id as:model:
-      - choose <[model.type]>:
-        - case player_model:
-          - run pmodels_remove_model def:<[model.root]>
-        - case model:
-          - run modelengine_delete def:<[model.root]>
+    - run dcutscene_animation_cleanup_models def.player:<[player]>
     - flag <[player]> dcutscene_played_scene:!
-    - flag <[player]> dcutscene_spawned_models:!
     - flag <[player]> dcutscene_timespot:!
 
 #========= Path movement for camera, models, and entities ========
