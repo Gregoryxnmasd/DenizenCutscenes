@@ -798,6 +798,9 @@ dcutscene_events:
         #Change animation
         after player clicks dcutscene_model_change_animation in dcutscene_inventory_keyframe_modify_model:
         - run dcutscene_model_keyframe_edit def:denizen_model|new_animation_prepare
+        #Change animation duration
+        after player clicks dcutscene_model_change_animation_duration in dcutscene_inventory_keyframe_modify_model:
+        - run dcutscene_model_keyframe_edit def:denizen_model|new_animation_duration_prepare
         #Change path interpolation method
         after player clicks dcutscene_model_interp_method in dcutscene_inventory_keyframe_modify_model:
         - run dcutscene_model_keyframe_edit def:denizen_model|change_path_interp|<context.slot>

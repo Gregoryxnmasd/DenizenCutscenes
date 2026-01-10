@@ -318,7 +318,7 @@ dcutscene_command:
     - dscene
     description: Cutscene command for DCutscene
     tab completions:
-      1: <list[load|save|play|location|loc|animate|model|sound|material|particle|stop|item]>
+      1: <list[load|save|play|location|loc|animate|animate_duration|model|sound|material|particle|stop|item]>
       2: <player.proc[dcutscene_data_list].if_null[<empty>]>
     permission: dcutscene.op
     script:
@@ -415,17 +415,33 @@ dcutscene_command:
                     - run dcutscene_model_keyframe_edit def:player_model|animate|set_animation|<[a_2]>
                   - case model:
                     #Validate the animation
-                    - run dcutscene_models_registry_sync
+                    - run dcutscene_models_registry_sync def.player:<player>
                     - define model <player.flag[dcutscene_save_data.model]>
                     - define parsed <proc[dcutscene_modelengine_animation_parse].context[<[a_2]>]>
                     - define anim_name <[parsed.name]>
-                    - if <[anim_name]> != false && <[anim_name]> != stop && <server.has_flag[dcutscene_modelengine_animations.<[model]>]> && <server.flag[dcutscene_modelengine_animations.<[model]>.<[anim_name]>]||null> == null:
+                    - if <[anim_name]> != false && <[anim_name]> != stop && <player.has_flag[dcutscene_modelengine_animations.<[model]>]> && <player.flag[dcutscene_modelengine_animations.<[model]>.<[anim_name]>]||null> == null:
                       - define text "Animation <green><[a_2]> <gray>does not seem to exist for model <green><[model]><gray>."
                       - narrate "<[msg_prefix]> <gray><[text]>"
                       - stop
                     - if <[anim_name]> != false && <[anim_name]> != stop:
-                      - flag server dcutscene_modelengine_animations.<[model]>.<[anim_name]>:true
+                      - flag <player> dcutscene_modelengine_animations.<[model]>.<[anim_name]>:true
                     - run dcutscene_model_keyframe_edit def:denizen_model|set_animation|<[a_2]>
+        #Set animation duration for model keyframes
+        - case animate_duration:
+          - if <player.has_flag[cutscene_modify]> && <player.flag[cutscene_modify]> == set_model_animation_duration:
+            - if <[a_2]> == null:
+              - define text "You must provide a duration in ticks."
+              - narrate "<[msg_prefix]> <gray><[text]>"
+              - stop
+            - if !<[a_2].is_integer>:
+              - define text "Animation duration must be a number of ticks."
+              - narrate "<[msg_prefix]> <gray><[text]>"
+              - stop
+            - if <[a_2].is_less_than[0]>:
+              - define text "Animation duration must be zero or greater."
+              - narrate "<[msg_prefix]> <gray><[text]>"
+              - stop
+            - run dcutscene_model_keyframe_edit def:denizen_model|set_animation_duration|<[a_2]>
         #Shows list of models
         - case model:
           - if <player.has_flag[cutscene_modify]>:
@@ -456,10 +472,65 @@ dcutscene_command:
                 - run dcutscene_animator_keyframe_edit def:particle|change_particle|<[a_2]>
 
 # Sync ModelEngine registry data to dcutscene_models
-dcutscene_models_registry_sync:
+dcutscene_modelengine_sync_registry:
     type: task
     debug: true
     script:
+    - define modelengine_data <server.flag[modelengine_data]||<map>>
+    - define me_models <list>
+    - execute as_server "modelengine list" save:me_list
+    - define raw_list <entry[me_list].result||null>
+    - if <[raw_list]> != null:
+      - define lines <[raw_list].split[\n]>
+      - foreach <[lines]> as:line:
+        - define cleaned <[line].strip_color.trim>
+        - if <[cleaned].starts_with[- ]>:
+          - define cleaned <[cleaned].after[- ]>
+        - if <[cleaned].starts_with[* ]>:
+          - define cleaned <[cleaned].after[* ]>
+        - if <[cleaned].contains[:]>:
+          - define cleaned <[cleaned].after[:]>
+        - define parts <[cleaned].split[,].parse_tag[<[parse_value].trim>]>
+        - foreach <[parts]> as:part:
+          - if <[part].is_empty>:
+            - foreach next
+          - define me_models:->:<[part]>
+    - define me_models <[me_models].deduplicate>
+    - foreach <[me_models]> as:model:
+      - define modelengine_data.model_<[model]>:true
+      - execute as_server "modelengine animation list <[model]>" save:me_anim
+      - define raw_anim <entry[me_anim].result||null>
+      - if <[raw_anim]> != null:
+        - define anim_map <map>
+        - define anim_lines <[raw_anim].split[\n]>
+        - foreach <[anim_lines]> as:line:
+          - define cleaned <[line].strip_color.trim>
+          - if <[cleaned].starts_with[- ]>:
+            - define cleaned <[cleaned].after[- ]>
+          - if <[cleaned].starts_with[* ]>:
+            - define cleaned <[cleaned].after[* ]>
+          - if <[cleaned].contains[:]>:
+            - define cleaned <[cleaned].after[:]>
+          - define parts <[cleaned].split[,].parse_tag[<[parse_value].trim>]>
+          - foreach <[parts]> as:anim:
+            - if <[anim].is_empty>:
+              - foreach next
+            - define anim_map.<[anim]>:true
+        - if !<[anim_map].is_empty>:
+          - define modelengine_data.animations_<[model]> <[anim_map]>
+    - if !<[me_models].is_empty>:
+      - flag server dcutscene_me_models:<[me_models]>
+    - if !<[modelengine_data].is_empty>:
+      - flag server modelengine_data:<[modelengine_data]>
+
+dcutscene_models_registry_sync:
+    type: task
+    debug: true
+    definitions: player
+    script:
+    - define player <[player]||<player>>
+    - if <[player]> == null:
+      - stop
     - if !<server.has_flag[modelengine_data]>:
       - stop
     - define registry <map>
@@ -467,24 +538,26 @@ dcutscene_models_registry_sync:
       - define model_name <[model_key].after[model_]>
       - define anim_list <server.flag[modelengine_data.animations_<[model_name]>]||<map>>
       - define registry.models.<[model_name]>.animations <[anim_list]>
-    - flag server dcutscene_models.registry:<[registry]>
+    - flag <[player]> dcutscene_models.registry:<[registry]>
 
 # Tab completion for list of cutscenes or animator modifiers that utilize data from the server
 dcutscene_model_index:
     type: procedure
     debug: true
     script:
-    - define model_index <server.flag[dcutscene_me_models]||null>
+    - if <player||null> == null:
+      - determine <list>
+    - define model_index <player.flag[dcutscene_me_models]||null>
     - if <[model_index]> == null:
       - if <server.has_flag[modelengine_data]>:
         - define me_models <server.flag[modelengine_data].keys.filter[starts_with[model_]].parse_tag[<[parse_value].after[model_]>]||<list>>
         - if !<[me_models].is_empty>:
-          - flag server dcutscene_me_models:<[me_models]>
+          - flag <player> dcutscene_me_models:<[me_models]>
           - determine <[me_models]>
       - define config_models <script[dcutscenes_config].data_key[config].get[dcutscene_me_models].if_null[<list>]>
       - if <[config_models].is_empty>:
         - determine <list>
-      - flag server dcutscene_me_models:<[config_models]>
+      - flag <player> dcutscene_me_models:<[config_models]>
       - determine <[config_models]>
     - determine <[model_index]||<list>>
 
@@ -513,9 +586,9 @@ dcutscene_data_list:
               - define anim_list <server.flag[pmodels_data.animations_player_model_template_norm]||<map>>
               - determine <[anim_list].keys||<empty>>
             - case model:
-              - run dcutscene_models_registry_sync
+              - run dcutscene_models_registry_sync def.player:<player>
               - define model <[player].flag[dcutscene_save_data.model]>
-              - define anim_list <server.flag[dcutscene_modelengine_animations.<[model]>]||<map>>
+              - define anim_list <player.flag[dcutscene_modelengine_animations.<[model]>]||<map>>
               - determine <[anim_list].keys||<empty>>
       - case material:
         - determine <server.material_types.filter[is_block].parse_tag[<material[<[parse_value]>].name>]>

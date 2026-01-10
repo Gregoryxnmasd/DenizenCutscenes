@@ -687,6 +687,7 @@ dcutscene_model_keyframe_edit:
                   - debug error "Something went wrong could not determine model ID in dcutscene_model_keyframe_edit for create_model_name"
                   - stop
                 #Model verification
+                - run dcutscene_modelengine_sync_registry
                 - define model_index <proc[dcutscene_model_index]>
                 - if <[model_index].is_empty>:
                   - define text "There is no model data available"
@@ -771,7 +772,7 @@ dcutscene_model_keyframe_edit:
                         - narrate "<[msg_prefix]> <gray><[text]>"
                         - flag <player> dcutscene_save_data.data:<[root_save]>
                         - define model <[root_data.model]>
-                        - flag server dcutscene_modelengine_models.<[model]>:true
+                        - flag <player> dcutscene_modelengine_models.editor.<[model]>:true
                         - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
                         - if <[modelengine_spawn]> == null:
                           - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
@@ -916,7 +917,7 @@ dcutscene_model_keyframe_edit:
                 - if <[modelengine_spawn]> == null:
                   - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
                   - stop
-                - flag server dcutscene_modelengine_models.<[model]>:true
+                - flag <player> dcutscene_modelengine_models.editor.<[model]>:true
                 - run <[modelengine_spawn]> def:<[model]>|<player.location>|256|<player> save:spawned
                 - define root <entry[spawned].created_queue.determination.first>
                 - flag <player> dcutscene_save_data.root:<[root]>
@@ -1080,6 +1081,13 @@ dcutscene_model_keyframe_edit:
                 - define text "To set the animation use the command /dcutscene animate <green>my_animation <gray>to prevent an animation from playing put <red>false<gray> to stop an animation from playing put <red>stop<gray>."
                 - narrate "<[msg_prefix]> <gray><[text]>"
                 - inventory close
+              #-Prepare for new animation duration
+              - case new_animation_duration_prepare:
+                - flag <player> cutscene_modify:set_model_animation_duration
+                - flag <player> dcutscene_save_data.type:model
+                - define text "To set the animation duration use the command /dcutscene animate_duration <green>ticks <gray>(0 disables auto stop)."
+                - narrate "<[msg_prefix]> <gray><[text]>"
+                - inventory close
 
               #-Set the animation for the player model keyframe point
               - case set_animation:
@@ -1102,6 +1110,26 @@ dcutscene_model_keyframe_edit:
                   - define text "Model <green><[model_data.<[tick]>.<[uuid]>.id]> <gray>animation is now <green><[arg_2]> <gray>in tick <green><[tick]>t <gray>for scene <green><[data.name]><gray>."
                 - else:
                   - define text "Model <green><[model_data.<[tick]>.<[uuid]>.id]> <gray>animation will now <red><[arg_2]> <gray>in tick <green><[tick]>t <gray>for scene <green><[data.name]><gray>."
+                - narrate "<[msg_prefix]> <gray><[text]>"
+                - inventory open d:dcutscene_inventory_keyframe_modify_model
+              #-Set the animation duration for the model keyframe point
+              - case set_animation_duration:
+                - flag <player> cutscene_modify:!
+                - define model_data <[data.keyframes.models]>
+                - define root_data <[data.keyframes.models.<[tick]>.<[uuid]>.root]||none>
+                #If the model contains a root data model
+                - if <[root_data]> != none:
+                  - define model_data.<[root_data.tick]>.<[root_data.uuid]>.path.<[tick]>.animation_duration_ticks <[arg_2]>
+                #If the model is a root model
+                - else:
+                  - define model_data.<[tick]>.<[uuid]>.path.<[tick]>.animation_duration_ticks <[arg_2]>
+                #=-Debugger
+                - if <script[dcutscenes_config].data_key[config].get[cutscene_tool_debugger_mode].if_null[false].is_truthy>:
+                  - ~run dcutscene_debugger def:model_set_animation_duration|<[model_data]>
+                  - stop
+                - flag server dcutscenes.<[data.name]>.keyframes.models:<[model_data]>
+                - flag <player> cutscene_data:<server.flag[dcutscenes.<[data.name]>]>
+                - define text "Model <green><[model_data.<[tick]>.<[uuid]>.id]> <gray>animation duration is now <green><[arg_2]>t <gray>in tick <green><[tick]>t <gray>for scene <green><[data.name]><gray>."
                 - narrate "<[msg_prefix]> <gray><[text]>"
                 - inventory open d:dcutscene_inventory_keyframe_modify_model
 
