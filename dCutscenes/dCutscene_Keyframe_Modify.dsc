@@ -666,21 +666,27 @@ dcutscene_model_keyframe_edit:
               #-Create new model ID
               - case create_id:
                 - define raw_input <[arg_2].strip_color.trim>
-                - define model_id <[raw_input]>
+                - define normalized_input <[raw_input].replace_regex[ +].with[ ]>
+                - define model_id null
                 - define model_name null
-                - if <[raw_input].contains[|]>:
-                  - define parts <[raw_input].split[|].parse_tag[<[parse_value].trim>]>
-                  - define model_id <[parts.get[1]||null]>
-                  - define model_name <[parts.get[2]||null]>
-                - else if <[raw_input].contains[ ]>:
-                  - define model_id <[raw_input].split[ ].get[1]||null>
-                  - define model_name <[raw_input].after[ ]||null>
+                - if <[normalized_input].contains[|]>:
+                  - define parts <[normalized_input].split[|].parse_tag[<[parse_value].trim>]>
+                  - foreach <[parts]> as:part:
+                    - if <[model_id]> == null && <[part].length.is[0].not>:
+                      - define model_id <[part]>
+                    - else if <[model_id]> != null && <[model_name]> == null && <[part].length.is[0].not>:
+                      - define model_name <[part]>
+                - else if <[normalized_input].contains[ ]>:
+                  - define model_id <[normalized_input].before[ ]||null>
+                  - define model_name <[normalized_input].after[ ]||null>
+                - else:
+                  - define model_id <[normalized_input]>
                 - if <[model_name]> != null:
                   - define model_name <[model_name].trim>
                 - if <[model_name]> != null && <[model_name].length.is[0]>:
                   - define model_name null
                 - if <[model_id]> == null || <[model_id].length.is[0]>:
-                  - define text "Please provide a valid model ID."
+                  - define text "Invalid model input '<[raw_input]>' - examples: ID, ID|model, ID model."
                   - narrate "<[msg_prefix]> <gray><[text]>"
                   - stop
                 #Check if model has already been set in tick
