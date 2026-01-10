@@ -22,8 +22,8 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
     @Override
     public void onEnable() {
-        if (getCommand("cs_me4") != null) {
-            getCommand("cs_me4").setExecutor(this);
+        if (getCommand("csme4") != null) {
+            getCommand("csme4").setExecutor(this);
         }
         Bukkit.getPluginManager().registerEvents(this, this);
     }
@@ -75,7 +75,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
     private void handleSpawn(CommandSender sender, String[] args) {
         if (args.length < 9) {
-            sender.sendMessage("Usage: /cs_me4 spawn <viewerUUID> <cutsceneId> <modelId> <x> <y> <z> <yaw> <pitch>");
+            sender.sendMessage("Usage: /csme4 spawn <viewerUUID> <cutsceneId> <modelId> <x> <y> <z> <yaw> <pitch>");
             return;
         }
 
@@ -130,7 +130,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
     private void handleAnimPlay(CommandSender sender, String[] args) {
         if (args.length < 4) {
-            sender.sendMessage("Usage: /cs_me4 anim_play <viewerUUID> <cutsceneId> <animationId>");
+            sender.sendMessage("Usage: /csme4 anim_play <viewerUUID> <cutsceneId> <animationId>");
             return;
         }
 
@@ -153,7 +153,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
     private void handleAnimStop(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage("Usage: /cs_me4 anim_stop <viewerUUID> <cutsceneId> [animationId]");
+            sender.sendMessage("Usage: /csme4 anim_stop <viewerUUID> <cutsceneId> [animationId]");
             return;
         }
 
@@ -181,7 +181,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
     private void handleMove(CommandSender sender, String[] args) {
         if (args.length < 8) {
-            sender.sendMessage("Usage: /cs_me4 move <viewerUUID> <cutsceneId> <x> <y> <z> <yaw> <pitch>");
+            sender.sendMessage("Usage: /csme4 move <viewerUUID> <cutsceneId> <x> <y> <z> <yaw> <pitch>");
             return;
         }
 
@@ -225,7 +225,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
     private void handleVisibility(CommandSender sender, String[] args) {
         if (args.length < 4) {
-            sender.sendMessage("Usage: /cs_me4 visibility <viewerUUID> <cutsceneId> <visible|hidden>");
+            sender.sendMessage("Usage: /csme4 visibility <viewerUUID> <cutsceneId> <visible|hidden>");
             return;
         }
 
@@ -271,7 +271,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
     private void handleRemove(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage("Usage: /cs_me4 remove <viewerUUID> <cutsceneId>");
+            sender.sendMessage("Usage: /csme4 remove <viewerUUID> <cutsceneId>");
             return;
         }
 
@@ -294,7 +294,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
 
     private void handleCleanupViewer(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage("Usage: /cs_me4 cleanup_viewer <viewerUUID>");
+            sender.sendMessage("Usage: /csme4 cleanup_viewer <viewerUUID>");
             return;
         }
 
@@ -332,13 +332,13 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
     }
 
     private void sendUsage(CommandSender sender) {
-        sender.sendMessage("/cs_me4 spawn <viewerUUID> <cutsceneId> <modelId> <x> <y> <z> <yaw> <pitch>");
-        sender.sendMessage("/cs_me4 anim_play <viewerUUID> <cutsceneId> <animationId>");
-        sender.sendMessage("/cs_me4 anim_stop <viewerUUID> <cutsceneId> [animationId]");
-        sender.sendMessage("/cs_me4 move <viewerUUID> <cutsceneId> <x> <y> <z> <yaw> <pitch>");
-        sender.sendMessage("/cs_me4 visibility <viewerUUID> <cutsceneId> <visible|hidden>");
-        sender.sendMessage("/cs_me4 remove <viewerUUID> <cutsceneId>");
-        sender.sendMessage("/cs_me4 cleanup_viewer <viewerUUID>");
+        sender.sendMessage("/csme4 spawn <viewerUUID> <cutsceneId> <modelId> <x> <y> <z> <yaw> <pitch>");
+        sender.sendMessage("/csme4 anim_play <viewerUUID> <cutsceneId> <animationId>");
+        sender.sendMessage("/csme4 anim_stop <viewerUUID> <cutsceneId> [animationId]");
+        sender.sendMessage("/csme4 move <viewerUUID> <cutsceneId> <x> <y> <z> <yaw> <pitch>");
+        sender.sendMessage("/csme4 visibility <viewerUUID> <cutsceneId> <visible|hidden>");
+        sender.sendMessage("/csme4 remove <viewerUUID> <cutsceneId>");
+        sender.sendMessage("/csme4 cleanup_viewer <viewerUUID>");
     }
 
     private String buildKey(UUID viewerUuid, String cutsceneId) {
