@@ -634,7 +634,11 @@ dcutscene_model_remove:
     debug: true
     definitions: type|root_ent
     script:
-    - if <[root_ent].is_spawned>:
+    - define root_valid <[root_ent].is_entity||false>
+    - if <[root_valid].not>:
+      - debug error "dcutscene_model_remove could not resolve root entity '<[root_ent]>'"
+      - stop
+    - if <[root_ent].is_spawned||false>:
       - choose <[type]>:
         - case player_model:
             - run pmodels_remove_model def:<[root_ent]>
