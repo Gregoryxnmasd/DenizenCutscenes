@@ -773,7 +773,7 @@ dcutscene_events:
         - choose <player.flag[dcutscene_save_data.type]>:
           - case model:
             - flag <player> cutscene_modify:new_model_id expire:2m
-            - define text "Chat the name of the model this will be used as an identifier."
+            - define text "Chat the model ID, or use <green>ID|model <gray>/<green>ID model <gray>to set the ModelEngine name now."
             - narrate "<[msg_prefix]> <gray><[text]>"
             - inventory close
           - case player_model:

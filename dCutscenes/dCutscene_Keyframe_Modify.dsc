@@ -665,20 +665,41 @@ dcutscene_model_keyframe_edit:
 
               #-Create new model ID
               - case create_id:
+                - define raw_input <[arg_2].strip_color.trim>
+                - define model_id <[raw_input]>
+                - define model_name null
+                - if <[raw_input].contains[|]>:
+                  - define parts <[raw_input].split[|].parse_tag[<[parse_value].trim>]>
+                  - define model_id <[parts.get[1]||null]>
+                  - define model_name <[parts.get[2]||null]>
+                - else if <[raw_input].contains[ ]>:
+                  - define model_id <[raw_input].split[ ].get[1]||null>
+                  - define model_name <[raw_input].after[ ]||null>
+                - if <[model_name]> != null:
+                  - define model_name <[model_name].trim>
+                - if <[model_name]> != null && <[model_name].is_empty>:
+                  - define model_name null
+                - if <[model_id]> == null || <[model_id].is_empty>:
+                  - define text "Please provide a valid model ID."
+                  - narrate "<[msg_prefix]> <gray><[text]>"
+                  - stop
                 #Check if model has already been set in tick
                 - define model_list <[data.keyframes.models.<[tick]>.model_list]||<list>>
                 - foreach <[model_list]> as:model_uuid:
-                  - define model_id <[data.keyframes.models.<[tick]>.<[model_uuid]>.id]>
-                  - if <[model_id]> == <[arg_2]>:
+                  - define existing_model_id <[data.keyframes.models.<[tick]>.<[model_uuid]>.id]>
+                  - if <[existing_model_id]> == <[model_id]>:
                     - define model_type <[data.keyframes.models.<[tick]>.<[model_uuid]>.type]>
-                    - define text "There is already a <[model_type]> with an id of <green><[arg_2]> <gray>in tick <green><[tick]>t<gray>."
+                    - define text "There is already a <[model_type]> with an id of <green><[model_id]> <gray>in tick <green><[tick]>t<gray>."
                     - narrate "<[msg_prefix]> <gray><[text]>"
                     - stop
                 #Save data for continuous data input in modifiers
-                - flag <player> dcutscene_save_data.id:<[arg_2]>
-                - define text "Use the command /dcutscene model <green>my_model <gray>to set the model."
-                - narrate "<[msg_prefix]> <gray><[text]>"
-                - flag <player> cutscene_modify:set_model_name expire:3m
+                - flag <player> dcutscene_save_data.id:<[model_id]>
+                - if <[model_name]> == null:
+                  - define text "Set the model with /dcutscene model <green>my_model <gray>or enter <green>ID|my_model <gray>/<green>ID my_model <gray>to set both at once."
+                  - narrate "<[msg_prefix]> <gray><[text]>"
+                  - flag <player> cutscene_modify:set_model_name expire:3m
+                - else:
+                  - run dcutscene_model_keyframe_edit def:denizen_model|create_model_name|<[model_name]>
 
               #-Set the model and give the location tool to set the location
               - case create_model_name:
