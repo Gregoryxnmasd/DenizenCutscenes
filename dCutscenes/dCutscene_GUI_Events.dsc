@@ -749,6 +749,15 @@ dcutscene_events:
         after player clicks dcutscene_location_tool_confirm_location in dcutscene_inventory_location_tool:
         - choose <player.flag[cutscene_modify]>:
           #New location for brand new model
+          - case new_model_location:
+            - define loc <player.flag[dcutscene_location_editor.location]||null>
+            - if <[loc]> == null:
+              - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
+              - define text "Missing location data for model creation. Re-open the location tool and confirm again."
+              - narrate "<[msg_prefix]> <gray><[text]>"
+              - stop
+            - run dcutscene_model_keyframe_edit def:denizen_model|location_set_and_create_model|<[loc]>
+          #New location for brand new model
           - case new_player_model_location:
             - run dcutscene_model_keyframe_edit def:player_model|create|location_set|<player.flag[dcutscene_location_editor.location]>
           #New location for new model with a root model
