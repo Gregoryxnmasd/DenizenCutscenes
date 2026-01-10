@@ -6,7 +6,7 @@
 #======== Cutscene Events ==========
 dcutscene_events:
     type: world
-    debug: false
+    debug: true
     events:
         on player quits:
         - if <player.has_flag[cutscene_modify]>:

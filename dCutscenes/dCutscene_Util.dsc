@@ -6,7 +6,7 @@
 #Create new cutscene from scratch
 dcutscene_new_scene:
     type: task
-    debug: false
+    debug: true
     definitions: type|scene
     script:
     - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
@@ -43,7 +43,7 @@ dcutscene_new_scene:
 # Removes the scene from the server flag dcutscenes
 dcutscene_remove_scene:
     type: task
-    debug: false
+    debug: true
     definitions: cutscene
     script:
     - if <server.flag[dcutscenes.<[cutscene]>]||null> == null:
@@ -58,7 +58,7 @@ dcutscene_remove_scene:
 # Change the name of the cutscene
 dcutscene_settings_modify:
     type: task
-    debug: false
+    debug: true
     definitions: option|arg
     script:
     - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
@@ -242,7 +242,7 @@ dcutscene_settings_modify:
 dcutscene_origin_set:
     type: task
     definitions: scene|origin
-    debug: false
+    debug: true
     script:
     - define data <server.flag[dcutscenes.<[scene]>]||null>
     - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
@@ -304,7 +304,7 @@ dcutscene_origin_set:
 # Returns a vector to be used with the .add tag when an origin point is set
 dcutscene_offset:
     type: procedure
-    debug: false
+    debug: true
     definitions: loc|loc2
     script:
     - determine <[loc2].x.sub[<[loc].x>]>,<[loc2].y.sub[<[loc].y>]>,<[loc2].z.sub[<[loc].z>]||0,0,0>
@@ -458,7 +458,7 @@ dcutscene_command:
 # Sync ModelEngine registry data to dcutscene_models
 dcutscene_models_registry_sync:
     type: task
-    debug: false
+    debug: true
     script:
     - if !<server.has_flag[modelengine_data]>:
       - stop
@@ -472,7 +472,7 @@ dcutscene_models_registry_sync:
 # Tab completion for list of cutscenes or animator modifiers that utilize data from the server
 dcutscene_model_index:
     type: procedure
-    debug: false
+    debug: true
     script:
     - define model_index <server.flag[dcutscene_me_models]||null>
     - if <[model_index]> == null:
@@ -485,7 +485,7 @@ dcutscene_model_index:
 
 dcutscene_data_list:
     type: procedure
-    debug: false
+    debug: true
     definitions: player
     script:
     - if !<[player].has_flag[cutscene_modify]> && !<[player].has_flag[cutscene_modify_tab]>:
@@ -524,7 +524,7 @@ dcutscene_data_list:
 # Spawns ModelEngine model and registers internal flags
 dcutscene_me_spawn_model:
     type: task
-    debug: false
+    debug: true
     definitions: model|loc|tracking_range|fake_to
     script:
     - define model_name <[model]||<[model_name]>||null>
@@ -544,7 +544,7 @@ dcutscene_me_spawn_model:
 # Deletes ModelEngine model using internal layer
 dcutscene_me_delete_model:
     type: task
-    debug: false
+    debug: true
     definitions: root
     script:
     - if <[root].is_spawned>:
@@ -553,7 +553,7 @@ dcutscene_me_delete_model:
 # Resets ModelEngine model position using internal layer
 dcutscene_me_reset_model_position:
     type: task
-    debug: false
+    debug: true
     definitions: root
     script:
     - if <[root].is_spawned>:
@@ -563,7 +563,7 @@ dcutscene_me_reset_model_position:
 # Saves a cutscene to a directory
 dcutscene_save_file:
     type: task
-    debug: false
+    debug: true
     definitions: cutscene
     script:
     - if <server.flag[dcutscenes.<[cutscene.name]>]||null> == null:
@@ -580,7 +580,7 @@ dcutscene_save_file:
 # Data debugger to visualize the data in "Denizen/data/dcutscenes/debug"
 dcutscene_debugger:
     type: task
-    debug: false
+    debug: true
     definitions: file|data
     script:
     - define msg_prefix <script[dcutscenes_config].data_key[config].get[cutscene_prefix].parse_color||<&color[0,0,255]><bold>DCutscenes>
@@ -597,7 +597,7 @@ dcutscene_debugger:
 # Cutscene file load validation
 dcutscene_load_file:
     type: task
-    debug: false
+    debug: true
     definitions: file
     script:
     - if !<[file].exists>:
@@ -618,7 +618,7 @@ dcutscene_load_file:
 # Loads cutscene file
 dcutscene_load_file_data:
     type: task
-    debug: false
+    debug: true
     definitions: file
     script:
     - ~yaml id:file_<[file]> load:data/dcutscenes/scenes/<[file]>
@@ -643,7 +643,7 @@ dcutscene_load_file_data:
 # Sort the keyframes
 dcutscene_sort_data:
     type: task
-    debug: false
+    debug: true
     definitions: cutscene
     script:
     - if !<[cutscene].exists>:
@@ -727,7 +727,7 @@ dcutscene_sort_data:
 # Returns total animation length of the cutscene
 dcutscene_animation_length:
     type: procedure
-    debug: false
+    debug: true
     definitions: cutscene
     script:
     - define data <server.flag[dcutscenes.<[cutscene]>]>
@@ -817,7 +817,7 @@ dcutscene_animation_length:
 #Input 4: How many points in the circle
 dcutscene_circle_proc:
   type: procedure
-  debug: false
+  debug: true
   definitions: loc|axis|radius|points
   script:
   - define axis <[axis]||y>
@@ -836,7 +836,7 @@ dcutscene_circle_proc:
 #Input 3: Another vector
 dcutscene_cube_proc:
   type: procedure
-  debug: false
+  debug: true
   definitions: loc|vec|vec_2
   script:
   - define vec <[vec]||10,10,10>
@@ -851,7 +851,7 @@ dcutscene_cube_proc:
 #Input 3: Another vector
 dcutscene_cube_holo_proc:
   type: procedure
-  debug: false
+  debug: true
   definitions: loc|vec|vec_2
   script:
   - define vec <[vec]||10,10,10>
@@ -865,7 +865,7 @@ dcutscene_cube_holo_proc:
 #Input 2: Vector offset such as 5,1,2
 dcutscene_sphere_proc:
   type: procedure
-  debug: false
+  debug: true
   definitions: loc|vector
   script:
   - define vector <[vector]||5,5,5>
@@ -880,7 +880,7 @@ dcutscene_sphere_proc:
 #Input 7: Another vector this should be used when interpolation is on smooth
 dcutscene_vector_path:
   type: procedure
-  debug: false
+  debug: true
   definitions: loc|vec|time|interpolation|offset|vec_2|vec_3
   script:
   - define vec <[vec]||null>

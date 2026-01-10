@@ -8,7 +8,7 @@
 #Show list of cutscenes in a gui
 dcutscene_scene_show:
     type: task
-    debug: false
+    debug: true
     definitions: page
     script:
     - inventory open d:dcutscene_inventory_main
@@ -79,7 +79,7 @@ dcutscene_scene_show:
 # Determine if the keyframe has animators
 dcutscene_keyframe_calculate:
     type: procedure
-    debug: false
+    debug: true
     definitions: scene_name|timespot
     script:
     - define keyframes <server.flag[dcutscenes.<[scene_name]>.keyframes]>
@@ -158,7 +158,7 @@ dcutscene_keyframe_calculate:
 # by gathering the data from the keyframes and then displaying it
 dcutscene_keyframe_modify:
     type: task
-    debug: false
+    debug: true
     definitions: page
     script:
     - define data <player.flag[cutscene_data]>
@@ -386,7 +386,7 @@ dcutscene_keyframe_modify:
 #Sub keyframe list
 dcutscene_sub_keyframe_modify:
     type: task
-    debug: false
+    debug: true
     definitions: keyframe
     script:
     #Data for returning to previous page

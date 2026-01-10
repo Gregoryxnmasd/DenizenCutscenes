@@ -3,7 +3,7 @@
 ## Camera Entity ################
 dcutscene_camera_entity:
     type: entity
-    debug: false
+    debug: true
     entity_type: armor_stand
     mechanisms:
         marker: false
@@ -17,7 +17,7 @@ dcutscene_camera_entity:
 #========= Cutscene Animator Events ============
 dcutscene_animation_events:
     type: world
-    debug: false
+    debug: true
     events:
       on player quits flagged:dcutscene_played_scene:
       - run dcutscene_animation_stop def.player:<player>
@@ -37,7 +37,7 @@ dcutscene_animation_events:
 #========= ModelEngine 4 Animation Helpers =========
 dcutscene_modelengine_animation_parse:
     type: procedure
-    debug: false
+    debug: true
     definitions: animation
     script:
     - if <[animation]> == null:
@@ -58,7 +58,7 @@ dcutscene_modelengine_animation_parse:
 
 dcutscene_modelengine_animation_play:
     type: task
-    debug: false
+    debug: true
     definitions: entity|animation
     script:
     - if <[entity]> == null:
@@ -85,7 +85,7 @@ dcutscene_modelengine_animation_play:
 
 dcutscene_modelengine_animation_stop:
     type: task
-    debug: false
+    debug: true
     definitions: entity
     script:
     - if <[entity]> == null:
@@ -100,7 +100,7 @@ dcutscene_modelengine_animation_stop:
 # Start the cutscene
 dcutscene_animation_begin:
     type: task
-    debug: false
+    debug: true
     definitions: scene|player|timespot|origin|world
     script:
     - define player <[player]||<player>>
@@ -358,7 +358,7 @@ dcutscene_animation_begin:
 # Camera Spawner
 dcutscene_camera_spawn:
     type: task
-    debug: false
+    debug: true
     definitions: player|timespot|camera|bound|world|origin
     script:
     - cast INVISIBILITY d:10000000000000s <[player]> hide_particles no_ambient no_icon
@@ -394,7 +394,7 @@ dcutscene_camera_spawn:
 # Returns the first camera location in the cutscene and returns null if there is an error.
 dcutscene_first_loc:
     type: procedure
-    debug: false
+    debug: true
     definitions: scene
     script:
     - define data <server.flag[dcutscenes.<[scene]>]||null>
@@ -417,7 +417,7 @@ dcutscene_first_loc:
 # Returns the first camera location closest to the timespot
 dcutscene_timespot_loc:
     type: procedure
-    debug: false
+    debug: true
     definitions: scene|timespot
     script:
     - define data <server.flag[dcutscenes.<[scene]>]||null>
@@ -432,7 +432,7 @@ dcutscene_timespot_loc:
 # Returns the length of the cutscene
 dcutscene_length:
     type: procedure
-    debug: false
+    debug: true
     definitions: scene
     script:
     - determine <server.flag[dcutscenes.<[scene]>.length]||null>
@@ -440,7 +440,7 @@ dcutscene_length:
 # Returns the origin point of the cutscene
 dcutscene_get_origin_point:
     type: procedure
-    debug: false
+    debug: true
     definitions: scene
     script:
     - determine <server.flag[dcutscenes.<[scene]>.settings.origin]||null>
@@ -448,7 +448,7 @@ dcutscene_get_origin_point:
 # Makes playes hidden for the cutscene user until the cutscene is over
 dcutscene_hide_players_task:
     type: task
-    debug: false
+    debug: true
     definitions: player|world
     script:
     - flag <[player]> dcutscene_hide_players:<map>
@@ -466,7 +466,7 @@ dcutscene_hide_players_task:
 # Cutscene Inventory give
 dcutscene_scene_inventory_give:
     type: task
-    debug: false
+    debug: true
     definitions: player
     script:
     - flag <[player]> dcutscene_previous_inv:<[player].inventory.map_slots>
@@ -474,7 +474,7 @@ dcutscene_scene_inventory_give:
 # Cutscene Inventory return
 dcutscene_scene_inventory_return:
     type: task
-    debug: false
+    debug: true
     definitions: player
     script:
     - inventory swap d:<[player].inventory>
@@ -482,7 +482,7 @@ dcutscene_scene_inventory_return:
 #=========== Animator Tasks =============
 dcutscene_run_task_animator_task:
     type: task
-    debug: false
+    debug: true
     definitions: task
     script:
     - define script <script[<[task.script]>]||null>
@@ -505,7 +505,7 @@ dcutscene_run_task_animator_task:
 #=Sound Animator Task
 dcutscene_animator_sound_play:
     type: task
-    debug: false
+    debug: true
     definitions: s_data|world|origin
     script:
     - define loc <[s_data.location]||false>
@@ -524,7 +524,7 @@ dcutscene_animator_sound_play:
 #=Screeneffect Animator Task
 dcutscene_screeneffect:
     type: task
-    debug: false
+    debug: true
     definitions: player|fade_in|stay|fade_out|color
     script:
     - if !<[color].exists>:
@@ -540,7 +540,7 @@ dcutscene_screeneffect:
 #=Fake Block Animator Task
 dcutscene_fake_block_animator:
     type: task
-    debug: false
+    debug: true
     definitions: loc|data|world|origin
     script:
     - if <[origin].is_truthy>:
@@ -569,7 +569,7 @@ dcutscene_fake_block_animator:
 #=Fake Schematic Animator Task
 dcutscene_fake_schem_animator:
     type: task
-    debug: false
+    debug: true
     definitions: loc|data|world|origin
     script:
     - if <[origin].is_truthy>:
@@ -611,7 +611,7 @@ dcutscene_fake_schem_animator:
 #=Particle Animator Task
 dcutscene_particle_animator_play:
     type: task
-    debug: false
+    debug: true
     definitions: player|p_data|world|scene_uuid|origin
     script:
     #Const
@@ -655,7 +655,7 @@ dcutscene_particle_animator_play:
 #=Command Animator Task
 dcutscene_command_animator:
     type: task
-    debug: false
+    debug: true
     definitions: c_data
     script:
     - define command <[c_data.command].parsed>
@@ -676,7 +676,7 @@ dcutscene_command_animator:
 #=Time Animator Task
 dcutscene_time_animator:
     type: task
-    debug: false
+    debug: true
     definitions: t_data
     script:
     - if <[t_data.reset]>:
@@ -691,7 +691,7 @@ dcutscene_time_animator:
 #======== Cutscene Model Cleanup ============
 dcutscene_animation_cleanup_models:
     type: task
-    debug: false
+    debug: true
     definitions: player
     script:
     - define player <[player]||<player>>
@@ -706,7 +706,7 @@ dcutscene_animation_cleanup_models:
 #======== Cutscene Animation Stop ============
 dcutscene_animation_stop:
     type: task
-    debug: false
+    debug: true
     definitions: player
     script:
     - define player <[player]||<player>>
@@ -743,7 +743,7 @@ dcutscene_animation_stop:
 #Note that the mount must be out of range of interaction or "cannot interact with self error will occur"
 dcutscene_path_move:
     type: task
-    debug: false
+    debug: true
     definitions: cutscene|timespot|scene_uuid|entity|type|data|world|origin
     script:
     - define cutscene <server.flag[dcutscenes.<[cutscene]>]||null>
@@ -1171,7 +1171,7 @@ dcutscene_path_move:
 #Interval for path shower
 dcutscene_path_show_interval:
     type: task
-    debug: false
+    debug: true
     definitions: type|tick|uuid
     script:
     - define script <script[dcutscenes_config].data_key[config].get[cutscene_path_update_interval]||4s>
@@ -1224,7 +1224,7 @@ dcutscene_path_show_interval:
 #Shows the path of the camera or model path
 dcutscene_path_show:
     type: task
-    debug: false
+    debug: true
     definitions: cutscene|type|tick|uuid
     script:
     - define data <server.flag[dcutscenes.<[cutscene]>]||null>
@@ -1301,7 +1301,7 @@ dcutscene_path_show:
 # This is used when changing model animator path locations
 dcutscene_semi_path_show:
     type: task
-    debug: false
+    debug: true
     definitions: loc|tick|tick_2|uuid
     script:
     #Center (After)
@@ -1362,7 +1362,7 @@ dcutscene_semi_path_show:
 # Creates a list of path points using interpolation methods
 dcutscene_path_creator:
     type: procedure
-    debug: false
+    debug: true
     definitions: player|loc_1|loc_2|type|time|loc_1_prev|loc_2_after
     script:
     - define time <[time]||null>
@@ -1411,7 +1411,7 @@ dcutscene_path_creator:
 # Used to show path in camera recorder frames
 dcutscene_recording_frames_path_creator:
     type: procedure
-    debug: false
+    debug: true
     definitions: scene|timespot|player|world
     script:
     - define data <server.flag[dcutscenes.<[scene]>]||null>
@@ -1428,7 +1428,7 @@ dcutscene_recording_frames_path_creator:
 
 dcutscene_catmullrom_get_t:
     type: procedure
-    debug: false
+    debug: true
     definitions: t|p0|p1
     script:
     # This is more complex for different alpha values, but alpha=1 compresses down to a '.vector_length' call conveniently
@@ -1437,7 +1437,7 @@ dcutscene_catmullrom_get_t:
 # Procedure script originally by mcmonkey.
 dcutscene_catmullrom_proc:
     type: procedure
-    debug: false
+    debug: true
     definitions: p0|p1|p2|p3|t
     script:
     # Zero distances are impossible to calculate
@@ -1469,7 +1469,7 @@ dcutscene_catmullrom_proc:
 # Cinematic bars on screen
 dcutscene_bars:
     type: task
-    debug: false
+    debug: true
     definitions: player
     script:
     - define player <[player]||<player>>
@@ -1489,7 +1489,7 @@ dcutscene_bars:
 # Remove cinematic bars from screen
 dcutscene_bars_remove:
     type: task
-    debug: false
+    debug: true
     definitions: player
     script:
     - define player <[player]||<player>>
