@@ -34,6 +34,34 @@ dcutscene_animation_events:
       on player damaged flagged:dcutscene_camera:
       - determine 0.0
 
+dcutscene_modelengine_keyframe_bridge:
+    type: world
+    debug: true
+    events:
+      on modelengine scriptable keyframe:
+      - define entity <context.entity||context.model||null>
+      - if <[entity]> == null:
+        - stop
+      - define instance_id <[entity].flag[dcutscene_model_id]||null>
+      - define model_id <[entity].flag[modelengine_model_id]||null>
+      - define animation <context.animation||<[entity].flag[dcutscene_modelengine_animation.name]||null>>
+      - define keyframe_meta <map[
+          name=<context.keyframe||context.keyframe_name||context.name||null>;
+          uuid=<context.keyframe_uuid||context.uuid||null>;
+          type=<context.keyframe_type||context.type||null>;
+          data=<context.data||null>;
+          tick=<context.tick||context.time||null>
+        ]>
+      - define payload <map[
+          instanceId=<[instance_id]>;
+          modelId=<[model_id]>;
+          animation=<[animation]>;
+          keyframe=<[keyframe_meta]>;
+          entity=<[entity]>;
+          sceneUuid=<[entity].flag[dcutscene_scene_uuid]||null>
+        ]>
+      - event "dcutscene modelengine keyframe" context:<[payload]>
+
 #========= ModelEngine 4 Animation Helpers =========
 dcutscene_modelengine_animation_parse:
     type: procedure
