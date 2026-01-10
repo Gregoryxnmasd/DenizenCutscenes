@@ -12,13 +12,20 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <modelengine.version>R4.0.9-2210</modelengine.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.ticxo.modelengine</groupId>
       <artifactId>ModelEngine</artifactId>
-      <version>R4.0.9</version>
+      <version>${modelengine.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot-api</artifactId>
+      <version>1.20.4-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -86,20 +93,20 @@
       <id>local-modelengine</id>
       <activation>
         <file>
-          <exists>libs/ModelEngine-R4.0.9-2210.jar</exists>
+          <exists>libs/ModelEngine-${modelengine.version}.jar</exists>
         </file>
       </activation>
       <dependencies>
         <!--
           Fallback when the ModelEngine artifact is not available in remote repositories:
-          place libs/ModelEngine-R4.0.9-2210.jar and activate this profile.
+          place libs/ModelEngine-${modelengine.version}.jar and activate this profile.
         -->
         <dependency>
           <groupId>com.ticxo.modelengine</groupId>
           <artifactId>ModelEngine</artifactId>
-          <version>R4.0.9-2210</version>
+          <version>${modelengine.version}</version>
           <scope>system</scope>
-          <systemPath>${project.basedir}/libs/ModelEngine-R4.0.9-2210.jar</systemPath>
+          <systemPath>${project.basedir}/libs/ModelEngine-${modelengine.version}.jar</systemPath>
         </dependency>
       </dependencies>
     </profile>
