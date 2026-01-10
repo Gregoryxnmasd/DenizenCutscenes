@@ -16,7 +16,7 @@ modelengine_spawn_model:
   - execute as_server <[command]> silent
   - wait 2t
   - define after_entities <[location].find_entities.within[4]||<list>>
-  - define new_entities <[after_entities].exclude[<[before_entities].parse_tag>]>
+  - define new_entities <[after_entities].exclude[<[before_entities]>]>
   - define spawned_entity <[new_entities].first||<[after_entities].first||null>
   - define fallback_entity <[viewer].if_null[server].flag[dcutscene_modelengine.last_spawn.entity]||<server.flag[dcutscene_modelengine.last_spawn.entity]>>
   - if <[spawned_entity].is_null||false> && <[fallback_entity].is_spawned||false>:
