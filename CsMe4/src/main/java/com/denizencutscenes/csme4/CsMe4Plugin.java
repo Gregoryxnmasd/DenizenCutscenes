@@ -4,6 +4,8 @@ import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.dummy.Dummy;
 import com.ticxo.modelengine.api.entity.ActiveModel;
 import com.ticxo.modelengine.api.entity.ModeledEntity;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -14,9 +16,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
+public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Listener {
     private final Map<String, InstanceData> instances = new HashMap<>();
 
     @Override
@@ -24,6 +30,16 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
         if (getCommand("cs_me4") != null) {
             getCommand("cs_me4").setExecutor(this);
         }
+        Bukkit.getPluginManager().registerEvents(this, this);
+    }
+
+    @Override
+    public void onDisable() {
+        for (InstanceData data : instances.values()) {
+            data.dummy().setRemoved(true);
+            data.modeledEntity().destroy();
+        }
+        instances.clear();
     }
 
     @Override
@@ -46,6 +62,9 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
                 return true;
             case "move":
                 handleMove(sender, args);
+                return true;
+            case "visibility":
+                handleVisibility(sender, args);
                 return true;
             case "remove":
                 handleRemove(sender, args);
@@ -108,7 +127,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
         ActiveModel activeModel = ModelEngineAPI.createActiveModel(modelId);
         modeledEntity.addModel(activeModel);
 
-        dummy.setForceViewing(viewer, true);
+        applyVisibility(dummy, viewer.getUniqueId());
 
         instances.put(key, new InstanceData(dummy, modeledEntity, activeModel, viewer.getUniqueId(), cutsceneId));
         sender.sendMessage("Spawned ModelEngine instance for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
@@ -209,6 +228,45 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
         sender.sendMessage("Moved instance for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
     }
 
+    private void handleVisibility(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            sender.sendMessage("Usage: /cs_me4 visibility <instanceId> <visible|hidden>");
+            return;
+        }
+
+        InstanceData data = instances.get(args[1]);
+        if (data == null) {
+            sender.sendMessage("Unknown instance: " + args[1]);
+            return;
+        }
+
+        String mode = args[2].toLowerCase(Locale.ROOT);
+        boolean hidden;
+        switch (mode) {
+            case "hidden":
+            case "hide":
+            case "false":
+            case "off":
+            case "0":
+                hidden = true;
+                break;
+            case "visible":
+            case "show":
+            case "true":
+            case "on":
+            case "1":
+                hidden = false;
+                break;
+            default:
+                sender.sendMessage("Visibility must be 'visible' or 'hidden'.");
+                return;
+        }
+
+        data.setForceHidden(hidden);
+        applyVisibility(data);
+        sender.sendMessage("Visibility for " + args[1] + " set to " + (hidden ? "hidden" : "visible"));
+    }
+
     private void handleRemove(CommandSender sender, String[] args) {
         if (args.length < 3) {
             sender.sendMessage("Usage: /cs_me4 remove <viewerUUID> <cutsceneId>");
@@ -257,6 +315,20 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
         sender.sendMessage("Removed " + removedCount + " instance(s) for viewer " + viewerUuid + ".");
     }
 
+    private void applyVisibility(InstanceData data) {
+        Player viewer = Bukkit.getPlayer(data.viewerUuid());
+        if (viewer == null) {
+            return;
+        }
+        if (data.forceHidden()) {
+            data.dummy().setForceHidden(viewer, true);
+            data.dummy().setForceViewing(viewer, false);
+        } else {
+            data.dummy().setForceHidden(viewer, false);
+            data.dummy().setForceViewing(viewer, true);
+        }
+    }
+
     private void sendUsage(CommandSender sender) {
         sender.sendMessage("/cs_me4 spawn <viewerUUID> <cutsceneId> <modelId> <x> <y> <z> <yaw> <pitch>");
         sender.sendMessage("/cs_me4 anim_play <viewerUUID> <cutsceneId> <animationId>");
@@ -276,6 +348,17 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor {
         } catch (IllegalArgumentException ex) {
             sender.sendMessage(label + " must be a valid UUID.");
             return null;
+        }
+    }
+
+    private void applyVisibility(Dummy<?> dummy, UUID viewerUuid) {
+        Player viewer = Bukkit.getPlayer(viewerUuid);
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (viewer != null && player.getUniqueId().equals(viewerUuid)) {
+                dummy.setForceViewing(player, true);
+            } else {
+                dummy.setForceHidden(player, true);
+            }
         }
     }
 
