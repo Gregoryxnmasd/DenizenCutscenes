@@ -691,6 +691,18 @@ dcutscene_model_change_animation:
     - <empty>
     - <gray><italic>Click to change animation
 
+dcutscene_model_change_animation_duration:
+    type: item
+    material: clock
+    display name: <gold><bold>Animation Duration
+    lore:
+    - <empty>
+    - <gray>Set how many ticks the
+    - <gray>animation should play before stopping.
+    - <gray>Use 0 to disable auto stop.
+    - <empty>
+    - <gray><italic>Click to change animation duration
+
 dcutscene_model_interp_method:
     type: item
     material: lead
