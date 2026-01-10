@@ -95,7 +95,7 @@ dcutscene_events:
         - inventory close
 
         ##Right click for location input in animator modifier
-        after player right clicks block flagged:cutscene_modify using:main_hand:
+        after player right clicks block flagged:cutscene_modify hand:main:
         - ratelimit <player> 1t
         - choose <player.flag[cutscene_modify]>:
           #Sound location
