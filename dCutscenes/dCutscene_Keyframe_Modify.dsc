@@ -690,10 +690,9 @@ dcutscene_model_keyframe_edit:
                 - run dcutscene_modelengine_sync_registry
                 - define model_index <proc[dcutscene_model_index]>
                 - if <[model_index].is_empty>:
-                  - define text "There is no model data available"
+                  - define text "ModelEngine registry data is unavailable. Attempting to use the provided model name."
                   - narrate "<[msg_prefix]> <gray><[text]>"
-                  - stop
-                - if <[model_index].contains[<[arg_2]>]>:
+                - if <[model_index].is_empty> || <[model_index].contains[<[arg_2]>]>:
                   #If there is a model present remove it
                   - if <player.has_flag[dcutscene_location_editor]>:
                     - define loc_data <player.flag[dcutscene_location_editor]>
