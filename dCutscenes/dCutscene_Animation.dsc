@@ -71,9 +71,12 @@ dcutscene_modelengine_animation_play:
       - stop
     - define mode <[parsed.mode]||once>
     - define model_id <[entity].flag[modelengine_model_id]||null>
-    - if <[model_id]> != null:
-      - flag server dcutscene_modelengine_models.<[model_id]>:true
-      - flag server dcutscene_modelengine_animations.<[model_id]>.<[parsed.name]>:true
+    - define owner <[entity].flag[dcutscene_model_owner]||<player||null>>
+    - define scene_uuid <[entity].flag[dcutscene_scene_uuid]||<[owner].flag[dcutscene_played_scene.uuid]||null>>
+    - if <[model_id]> != null && <[owner]> != null:
+      - define scope <[scene_uuid].if_null[editor]>
+      - flag <[owner]> dcutscene_modelengine_models.<[scope]>.<[model_id]>:true
+      - flag <[owner]> dcutscene_modelengine_animations.<[scope]>.<[model_id]>.<[parsed.name]>:true
     - execute as_server "modelengine animation play <[entity].uuid> <[parsed.name]> <[mode]>"
     - flag <[entity]> dcutscene_modelengine_animation.name:<[parsed.name]>
     - flag <[entity]> dcutscene_modelengine_animation.mode:<[mode]>
@@ -222,7 +225,6 @@ dcutscene_animation_begin:
                 #=Model
                 - case model:
                   - define model_name <[model_data.model]>
-                  - flag server dcutscene_modelengine_models.<[model_name]>:true
                   - if <[script]> == null:
                     - debug error "Could not spawn model <[model_name]>. Is ModelEngine 4 installed and configured?"
                     - foreach next
@@ -260,16 +262,13 @@ dcutscene_animation_begin:
               - if <[type]> == model:
                 - flag <[root]> modelengine_model_id:<[model_name]>
                 - flag <[root]> dcutscene_model_id:<[model_id]>
-                - flag <[player]> dcutscene_models.instances.<[model_id]>.root:<[root]>
-                - flag <[player]> dcutscene_models.instances.<[model_id]>.modelengine_id:<[model_name]>
-                - flag <[player]> dcutscene_models.instances.<[model_id]>.owner:<[player]>
-                - flag <[player]> dcutscene_models.instances.<[model_id]>.animation.current:stop
-                - flag <[player]> dcutscene_models.instances.<[model_id]>.animation.state:stop
-                - flag server dcutscene_models.instances.<[model_id]>.root:<[root]>
-                - flag server dcutscene_models.instances.<[model_id]>.modelengine_id:<[model_name]>
-                - flag server dcutscene_models.instances.<[model_id]>.owner:<[player]>
-                - flag server dcutscene_models.instances.<[model_id]>.animation.current:stop
-                - flag server dcutscene_models.instances.<[model_id]>.animation.state:stop
+                - flag <[root]> dcutscene_model_owner:<[player]>
+                - flag <[root]> dcutscene_scene_uuid:<[scene_uuid]>
+                - flag <[player]> dcutscene_models.instances.<[scene_uuid]>.<[model_id]>.root:<[root]>
+                - flag <[player]> dcutscene_models.instances.<[scene_uuid]>.<[model_id]>.modelengine_id:<[model_name]>
+                - flag <[player]> dcutscene_models.instances.<[scene_uuid]>.<[model_id]>.owner:<[player]>
+                - flag <[player]> dcutscene_models.instances.<[scene_uuid]>.<[model_id]>.animation.current:stop
+                - flag <[player]> dcutscene_models.instances.<[scene_uuid]>.<[model_id]>.animation.state:stop
               - chunkload <[root].location.chunk> duration:5t
               # Track spawned model
               - flag <[player]> dcutscene_spawned_models.<[model_id]>.root:<[root]>
@@ -950,7 +949,7 @@ dcutscene_path_move:
           #====================== Model Path Move =======================
           - case model:
             #=Preparation
-            - run dcutscene_models_registry_sync
+            - run dcutscene_models_registry_sync def.player:<player>
             - define keyframes <[cutscene.keyframes.models.<[data.tick]>.<[data.uuid]>.path]>
             - foreach <[keyframes]> key:tick_id as:keyframe:
               - define time_1 <[keyframe.tick]||null>
