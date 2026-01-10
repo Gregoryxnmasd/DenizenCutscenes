@@ -401,7 +401,7 @@ dcutscene_command:
                       - case player_model:
                         - run pmodels_animate def:<[root]>|<[a_2]>
                       - case model:
-                        - run dcutscene_me_animate def:<[root]>|<[a_2]>
+                        - run dcutscene_modelengine_animation_play def.entity:<[root]> def.animation:<[a_2]>
               #Set animation for model in keyframe
               - else if <player.flag[cutscene_modify]> == set_model_animation:
                 - define type <player.flag[dcutscene_save_data.type]>
@@ -417,10 +417,14 @@ dcutscene_command:
                     #Validate the animation
                     - run dcutscene_models_registry_sync
                     - define model <player.flag[dcutscene_save_data.model]>
-                    - if <server.flag[dcutscene_models.registry.models.<[model]>.animations.<[a_2]>]||null> == null && <[a_2]> != false && <[a_2]> != stop:
+                    - define parsed <proc[dcutscene_modelengine_animation_parse].context[<[a_2]>]>
+                    - define anim_name <[parsed.name]>
+                    - if <[anim_name]> != false && <[anim_name]> != stop && <server.has_flag[dcutscene_modelengine_animations.<[model]>]> && <server.flag[dcutscene_modelengine_animations.<[model]>.<[anim_name]>]||null> == null:
                       - define text "Animation <green><[a_2]> <gray>does not seem to exist for model <green><[model]><gray>."
                       - narrate "<[msg_prefix]> <gray><[text]>"
                       - stop
+                    - if <[anim_name]> != false && <[anim_name]> != stop:
+                      - flag server dcutscene_modelengine_animations.<[model]>.<[anim_name]>:true
                     - run dcutscene_model_keyframe_edit def:denizen_model|set_animation|<[a_2]>
         #Shows list of models
         - case model:
@@ -475,8 +479,7 @@ dcutscene_data_list:
       - determine <server.flag[dcutscenes].keys||<empty>>
     - choose <[player].flag[cutscene_modify_tab]>:
       - case model:
-        - run dcutscene_models_registry_sync
-        - determine <server.flag[dcutscene_models.registry.models].keys||<empty>>
+        - determine <server.flag[dcutscene_modelengine_models].keys.if_null[<empty>]>
       - case sound:
         - determine <server.sound_types>
       - case animate:
@@ -494,7 +497,7 @@ dcutscene_data_list:
             - case model:
               - run dcutscene_models_registry_sync
               - define model <[player].flag[dcutscene_save_data.model]>
-              - define anim_list <server.flag[dcutscene_models.registry.models.<[model]>.animations]||<map>>
+              - define anim_list <server.flag[dcutscene_modelengine_animations.<[model]>]||<map>>
               - determine <[anim_list].keys||<empty>>
       - case material:
         - determine <server.material_types.filter[is_block].parse_tag[<material[<[parse_value]>].name>]>
