@@ -699,8 +699,19 @@ dcutscene_model_keyframe_edit:
                     - run dcutscene_model_remove def:<[loc_data.root_type]>|<[loc_data.root_ent]>
                   #Give location tool and spawn the model
                   - flag <player> cutscene_modify:new_model_location expire:10m
+                  - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
+                  - if <[modelengine_spawn]> == null:
+                    - define text "ModelEngine spawn script is not configured. Please set modelengine_spawn in configuration or define a valid spawn task script."
+                    - narrate "<[msg_prefix]> <gray><[text]>"
+                    - debug error "ModelEngine spawn script is null in dcutscene_model_keyframe_edit for create_model_name"
+                    - stop
                   - run <[modelengine_spawn]> def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
-                  - define root <entry[spawned].created_queue.determination.first>
+                  - define root <entry[spawned].created_queue.determination.first||null>
+                  - if <[root]> == null:
+                    - define text "Failed to spawn the ModelEngine model. Check the spawn script and model name."
+                    - narrate "<[msg_prefix]> <gray><[text]>"
+                    - debug error "ModelEngine spawn failed in dcutscene_model_keyframe_edit for create_model_name"
+                    - stop
                   #Don't reset save_data with a - definemap
                   - flag <player> dcutscene_save_data.root:<[root]>
                   - flag <player> dcutscene_save_data.model:<[arg_2]>
