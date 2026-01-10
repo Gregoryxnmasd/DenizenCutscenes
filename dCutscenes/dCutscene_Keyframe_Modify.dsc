@@ -736,14 +736,8 @@ dcutscene_model_keyframe_edit:
                       - run dcutscene_model_remove def:<[root_type]>|<[root_ent]>
                   #Give location tool and spawn the model
                   - flag <player> cutscene_modify:new_model_location expire:10m
-                  - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
-                  - if <[modelengine_spawn]> == null:
-                    - define text "ModelEngine spawn script is not configured. Please set modelengine_spawn in configuration or define a valid spawn task script."
-                    - narrate "<[msg_prefix]> <gray><[text]>"
-                    - debug error "ModelEngine spawn script is null in dcutscene_model_keyframe_edit for create_model_name"
-                    - stop
-                  - run <[modelengine_spawn]> def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.viewer:<player> save:spawned
-                  - define root <entry[spawned].created_queue.determination.first||null>
+                  - run dcutscene_me_spawn_model def.model_name:<[arg_2]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
+                  - define root <entry[spawned].determination||null>
                   - if <[root]> == null:
                     - define text "Failed to spawn the ModelEngine model. Check the spawn script and model name."
                     - narrate "<[msg_prefix]> <gray><[text]>"
@@ -832,12 +826,11 @@ dcutscene_model_keyframe_edit:
                         - flag <player> dcutscene_save_data.data:<[root_save]>
                         - define model <[root_data.model]>
                         - flag <player> dcutscene_modelengine_models.editor.<[model]>:true
-                        - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
-                        - if <[modelengine_spawn]> == null:
-                          - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
+                        - run dcutscene_me_spawn_model def.model_name:<[model]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
+                        - define root <entry[spawned].determination||null>
+                        - if <[root]> == null:
+                          - debug error "ModelEngine spawn failed in dcutscene_model_keyframe_edit for set_keyframe_location"
                           - foreach next
-                        - run <[modelengine_spawn]> def:<[model]>|<player.location>|256|<player> save:spawned
-                        - define root <entry[spawned].created_queue.determination.first>
                         - flag <player> dcutscene_save_data.root:<[root]>
                         - run dcutscene_location_tool_give_data def:<player.location>|<[root]>|<[root].location.yaw>|model|<[model]>
                         - inventory open d:dcutscene_inventory_location_tool
@@ -984,13 +977,12 @@ dcutscene_model_keyframe_edit:
                 - flag <player> cutscene_modify:set_new_model_location
                 - flag <player> dcutscene_save_data.data:<[root_save]>
                 - flag <player> dcutscnee_save_data.model:<[model]>
-                - define modelengine_spawn <script[modelengine_spawn_model]||<script[modelengine_spawn]||null>>
-                - if <[modelengine_spawn]> == null:
-                  - debug error "Could not find ModelEngine spawn script in dcutscene_model_keyframe_edit"
-                  - stop
                 - flag <player> dcutscene_modelengine_models.editor.<[model]>:true
-                - run <[modelengine_spawn]> def:<[model]>|<player.location>|256|<player> save:spawned
-                - define root <entry[spawned].created_queue.determination.first>
+                - run dcutscene_me_spawn_model def.model_name:<[model]> def.location:<player.location> def.tracking_range:256 def.fake_to:<player> save:spawned
+                - define root <entry[spawned].determination||null>
+                - if <[root]> == null:
+                  - debug error "ModelEngine spawn failed in dcutscene_model_keyframe_edit for locate_model_from_id"
+                  - stop
                 - flag <player> dcutscene_save_data.root:<[root]>
                 - run dcutscene_location_tool_give_data def:<player.location>|<[root]>|<[root].location.yaw>|model|<[model]>
                 - inventory open d:dcutscene_inventory_location_tool

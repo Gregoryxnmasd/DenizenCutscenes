@@ -11,18 +11,28 @@ modelengine_spawn_model:
   - define tracking_range <[tracking_range].if_null[256]>
   - define viewer <[viewer].if_null[server]>
   - define viewer_name <[viewer].name.if_null[server]>
+  - define scan_radius 16
+  - define max_attempts 10
+  - define wait_ticks 2t
   - define command "modelengine spawn <[model_name]> <[location].x> <[location].y> <[location].z> <[location].world.name> <[location].yaw> <[location].pitch> <[tracking_range]> <[viewer_name]>"
-  - define before_entities <[location].find_entities.within[4]||<list>>
+  - define before_entities <[location].find_entities.within[<[scan_radius]>]||<list>>
   - execute as_server <[command]> silent
-  - wait 2t
-  - define after_entities <[location].find_entities.within[4]||<list>>
-  - define new_entities <[after_entities].exclude[<[before_entities]>]>
-  - define spawned_entity <[new_entities].first||<[after_entities].first||null>
+  - define spawned_entity null
+  - repeat <[max_attempts]>:
+    - wait <[wait_ticks]>
+    - define after_entities <[location].find_entities.within[<[scan_radius]>]||<list>>
+    - define new_entities <[after_entities].exclude[<[before_entities]>]>
+    - define model_entities <[new_entities].filter[<[parse_value].flag[modelengine_model_id].equals_case_sensitive[<[model_name]>]>]>
+    - define spawned_entity <[model_entities].first||<[new_entities].first||null>
+    - if <[spawned_entity].is_null.not>:
+      - repeat stop
   - define fallback_entity <[viewer].if_null[server].flag[dcutscene_modelengine.last_spawn.entity]||<server.flag[dcutscene_modelengine.last_spawn.entity]>>
-  - if <[spawned_entity].is_null||false> && <[fallback_entity].is_spawned||false>:
+  - if <[spawned_entity].is_null||false> && <[fallback_entity].is_spawned||false> && <[fallback_entity].flag[modelengine_model_id].equals_case_sensitive[<[model_name]>]>:
     - define spawned_entity <[fallback_entity]>
   - if <[spawned_entity].is_null||false>:
     - debug "modelengine_spawn_model: failed to resolve spawned entity for <[model_name]> near <[location]>. No new entity found and last_spawn flag missing or invalid."
+  - if <[spawned_entity].is_spawned||false>:
+    - flag <[spawned_entity]> modelengine_model_id:<[model_name]>
   - definemap result command:<[command]> model:<[model_name]> location:<[location]> viewer:<[viewer]> entity:<[spawned_entity]>
   - flag server dcutscene_modelengine.last_spawn:<[result]>
   - if <[viewer].is_player||false>:
