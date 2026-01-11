@@ -1,9 +1,9 @@
 package com.extracraft;
 
 import com.ticxo.modelengine.api.ModelEngineAPI;
-import com.ticxo.modelengine.api.dummy.Dummy;
-import com.ticxo.modelengine.api.entity.ActiveModel;
-import com.ticxo.modelengine.api.entity.ModeledEntity;
+import com.ticxo.modelengine.api.entity.Dummy;
+import com.ticxo.modelengine.api.model.ActiveModel;
+import com.ticxo.modelengine.api.model.ModeledEntity;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -115,12 +115,14 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
         }
 
         Location spawnLocation = new Location(viewer.getWorld(), x, y, z, yaw, pitch);
-        Dummy<?> dummy = ModelEngineAPI.createDummy(spawnLocation);
+        Dummy<?> dummy = new Dummy<>();
+        dummy.setLocation(spawnLocation);
+        dummy.registerData();
         dummy.setDetectingPlayers(false);
 
         ModeledEntity modeledEntity = ModelEngineAPI.createModeledEntity(dummy);
         ActiveModel activeModel = ModelEngineAPI.createActiveModel(modelId);
-        modeledEntity.addModel(activeModel);
+        modeledEntity.addModel(activeModel, true);
 
         applyVisibility(dummy, viewer.getUniqueId());
 
