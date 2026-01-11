@@ -19,13 +19,6 @@
     <dependency>
       <groupId>com.ticxo.modelengine</groupId>
       <artifactId>ModelEngine</artifactId>
-      <version>${modelengine.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot-api</artifactId>
-      <version>1.20.4-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -35,6 +28,16 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.ticxo.modelengine</groupId>
+        <artifactId>ModelEngine</artifactId>
+        <version>${modelengine.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <resources>
@@ -81,14 +84,34 @@
     <repository>
       <id>spigotmc-repo</id>
       <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-    </repository>
-    <repository>
-      <id>ticxo-repo</id>
-      <url>https://repo.ticxo.net/repository/maven-public/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
   <profiles>
+    <profile>
+      <id>modelengine-remote</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+        <repository>
+          <id>ticxo-repo</id>
+          <url>https://repo.ticxo.net/repository/maven-public/</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
     <profile>
       <id>local-modelengine</id>
       <activation>
