@@ -149,7 +149,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
         }
 
         String animationId = args[3];
-        data.activeModel().getAnimationHandler().playAnimation(animationId, 0, 0);
+        data.activeModel().getAnimationHandler().playAnimation(animationId, 0.0, 0.0, 0.0, false);
         sender.sendMessage("Playing animation " + animationId + " for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
     }
 
@@ -176,7 +176,7 @@ public final class CsMe4Plugin extends JavaPlugin implements CommandExecutor, Li
             data.activeModel().getAnimationHandler().stopAnimation(animationId);
             sender.sendMessage("Stopped animation " + animationId + " for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
         } else {
-            data.activeModel().getAnimationHandler().stopAllAnimations();
+            data.activeModel().getAnimationHandler().forceStopAllAnimations();
             sender.sendMessage("Stopped animations for viewer " + viewerUuid + " in cutscene " + cutsceneId + ".");
         }
     }
